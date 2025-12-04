@@ -20,6 +20,16 @@
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
       "minNoctaliaVersion": "3.6.0",
       "license": "MIT"
+    },
+    {
+      "id": "catwalk",
+      "name": "Catwalk",
+      "version": "1.0.0",
+      "author": "MannuVilasara",
+      "description": "A cute animated cat for your bar.",
+      "repository": "https://github.com/MannuVilasara/noctalia-plugins",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "MIT"
     }
   ]
 }
