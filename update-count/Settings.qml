@@ -4,119 +4,155 @@ import qs.Commons
 import qs.Widgets
 
 ColumnLayout {
-    id: root
+  id: root
 
-    property var pluginApi: null
+  readonly property int minutesToMillis: 10_000
+  property var pluginApi: null
 
-    property int updateInterval: pluginApi?.pluginSettings?.updateInterval || pluginApi?.manifest?.metadata?.defaultSettings?.updateInterval
-    property string configuredTerminal: pluginApi?.pluginSettings?.configuredTerminal || pluginApi?.manifest?.metadata.defaultSettings?.configuredTerminal
-    property string configuredIcon: pluginApi?.pluginSettings?.configuredIcon || pluginApi?.manifest?.metadata?.defaultSettings?.configuredIcon
-    property bool hideOnZero: pluginApi?.pluginSettings?.hideOnZero || pluginApi?.manifest?.metadata?.defaultSettings?.hideOnZero
+  property int updateInterval: pluginApi?.pluginSettings?.updateInterval || pluginApi?.manifest?.metadata?.defaultSettings?.updateInterval
+  property string updateTerminalCommand: pluginApi?.pluginSettings?.updateTerminalCommand || pluginApi?.manifest?.metadata.defaultSettings?.updateTerminalCommand
+  property string currentIconName: pluginApi?.pluginSettings?.currentIconName || pluginApi?.manifest?.metadata?.defaultSettings?.currentIconName
+  property bool hideOnZero: pluginApi?.pluginSettings?.hideOnZero || pluginApi?.manifest?.metadata?.defaultSettings?.hideOnZero
 
-    spacing: Style.marginM
 
-    Component.onCompleted: {
-        Logger.i("UpdateCount", "Settings UI loaded");
+  property string customCmdGetNumUpdate: pluginApi?.pluginSettings.customCmdGetNumUpdate || ""
+  property string customCmdDoSystemUpdate: pluginApi?.pluginSettings.customCmdDoSystemUpdate || ""
+
+  implicitWidth: root.implicitWidth
+
+  spacing: Style.marginM
+
+  Component.onCompleted: {
+    Logger.i("UpdateCount", "Settings UI loaded");
+  }
+
+  NToggle {
+    id: widgetSwitch
+    label: pluginApi?.tr("settings.hideWidget.label")
+    description: pluginApi?.tr("settings.hideWidget.desc")
+    checked: root.hideOnZero
+    onToggled: function (checked) {
+      root.hideOnZero = checked;
+    }
+  }
+
+  RowLayout {
+    spacing: Style.marginL
+
+    NLabel {
+      label: pluginApi?.tr("settings.currentIconName.label")
     }
 
-    NToggle {
-        id: widgetSwitch
-        label: "Hide Widget"
-        description: "Hide widget when there are no updates available?"
-        checked: root.hideOnZero
-        onToggled: function (checked) {
-            root.hideOnZero = checked;
-        }
+    NText {
+      text: root.currentIconName
+      color: Settings.data.colorSchemes.darkMode ? Color.mPrimary : Color.mOnPrimary
     }
 
-    NTextInput {
-        Layout.fillWidth: true
-        label: "Terminal"
-        description: "Configure your current terminal. Default: foot -e"
-        placeholderText: "Enter your terminal emulator here..."
-        text: root.configuredTerminal
-        onTextChanged: root.configuredTerminal = text
+    NIcon {
+      icon: root.currentIconName
+      color: Settings.data.colorSchemes.darkMode ? Color.mPrimary : Color.mOnPrimary
     }
 
-    ColumnLayout {
-        Layout.fillWidth: true
-        spacing: Style.marginS
-
-        NLabel {
-            label: "Check for Updates Interval"
-            description: "How often to check for updates (in minutes). Default: 5 Minutes."
-        }
-
-        NSlider {
-            from: 5
-            to: 180
-            value: root.updateInterval / 60000
-            stepSize: 5
-            onValueChanged: {
-                root.updateInterval = value * 60000;
-            }
-        }
-
-        NText {
-            text: (root.updateInterval / 60000) + " minutes"
-            color: Settings.data.colorSchemes.darkMode ? Color.mOnSurface : Color.mOnPrimary
-        }
+    NButton {
+      text: pluginApi?.tr("settings.changeIcon.label")
+      onClicked: {
+        Logger.i("UpdateCount", "Icon selector button clicked.");
+        changeIcon.open();
+      }
     }
 
-    RowLayout {
-        Layout.fillWidth: true
-        spacing: Style.marginS
+    NIconPicker {
+      id: changeIcon
+      onIconSelected: function (icon) {
+        root.currentIconName = icon;
+      }
+    }
+  }
 
-        NText {
-            text: "Current Icon: " + (pluginApi?.pluginSettings?.configuredIcon || pluginApi?.manifest?.metadata?.defaultSettings?.configuredIcon)
-            color: Settings.data.colorSchemes.darkMode ? Color.mOnSurface : Color.mOnPrimary
-        }
+  NDivider {
+    visible: true
+    Layout.fillWidth: true
+    Layout.topMargin: Style.marginL
+    Layout.bottomMargin: Style.marginL
+  }
 
-        NIcon {
-            icon: root.configuredIcon
-            color: Settings.data.colorSchemes.darkMode ? Color.mOnSurface : Color.mOnPrimary
-        }
+  NTextInput {
+    Layout.fillWidth: true
+    label: pluginApi?.tr("settings.terminal.label")
+    description: pluginApi?.tr("settings.terminal.desc")
+    placeholderText: pluginApi?.tr("settings.terminal.placeholder")
+    text: root.updateTerminalCommand
+    onTextChanged: root.updateTerminalCommand = text
+  }
 
-        NButton {
-            text: "Change Icon"
-            onClicked: {
-                Logger.i("UpdateCount", "Icon!");
-                changeIcon.open();
-            }
-        }
+  NTextInput {
+    // Layout.fillWidth: true
+    label: pluginApi?.tr("settings.customCmdGetNumUpdate.label")
+    description: pluginApi?.tr("settings.customCmdGetNumUpdate.desc")
+    placeholderText: pluginApi?.tr("settings.customCmdGetNumUpdate.placeholder")
+    text: root.customCmdGetNumUpdate
+    onTextChanged: root.customCmdGetNumUpdate = text
+  }
 
-        NIconPicker {
-            id: changeIcon
-            onIconSelected: function (icon) {
-                root.configuredIcon = icon;
-            }
-        }
+  NTextInput {
+    // Layout.fillWidth: true
+    label: pluginApi?.tr("settings.customCmdDoSystemUpdate.label")
+    description: pluginApi?.tr("settings.customCmdDoSystemUpdate.desc")
+    placeholderText: pluginApi?.tr("settings.customCmdDoSystemUpdate.placeholder")
+    text: root.customCmdDoSystemUpdate
+    onTextChanged: root.customCmdDoSystemUpdate = text
+  }
+
+  NDivider {
+    visible: true
+    Layout.fillWidth: true
+    Layout.topMargin: Style.marginL
+    Layout.bottomMargin: Style.marginL
+  }
+
+  RowLayout {
+    Layout.fillWidth: true
+    spacing: Style.marginL
+
+    NLabel {
+      label: pluginApi?.tr("settings.updateInterval.label")
+      description: pluginApi?.tr("settings.updateInterval.desc")
     }
 
-    function timeValue() {
-        value = root.updateInterval / 60000;
-        if (value / 60 >= 1) {
-            value = value / 60;
-            return " hour/s";
-        } else {
-            return " minutes";
-        }
+    NSlider {
+      from: 5
+      to: 180
+      value: root.updateInterval / root.minutesToMillis
+      stepSize: 5
+      onValueChanged: {
+        root.updateInterval = value * root.minutesToMillis;
+      }
     }
 
-    function saveSettings() {
-        if (!pluginApi) {
-            Logger.e("UpdateCount", "Cannot save settings: pluginApi is null");
-            return;
-        }
-
-        pluginApi.pluginSettings.updateInterval = root.updateInterval;
-        pluginApi.pluginSettings.configuredTerminal = root.configuredTerminal;
-        pluginApi.pluginSettings.configuredIcon = root.configuredIcon;
-        pluginApi.pluginSettings.hideOnZero = root.hideOnZero;
-
-        pluginApi.saveSettings();
-
-        Logger.i("UpdateCount", "Settings saved successfully");
-        pluginApi.closePanel(root.screen);
+    NText {
+      text: (root.updateInterval / root.minutesToMillis).toString().padStart(3, " ") + " minutes"
+      color: Settings.data.colorSchemes.darkMode ? Color.mOnSurface : Color.mOnPrimary
     }
+  }
+
+  function saveSettings() {
+    if (!pluginApi) {
+      Logger.e("UpdateCount", "Cannot save settings: pluginApi is null");
+      return;
+    }
+
+    pluginApi.pluginSettings.updateInterval = root.updateInterval;
+    pluginApi.pluginSettings.updateTerminalCommand = root.updateTerminalCommand;
+    pluginApi.pluginSettings.currentIconName = root.currentIconName;
+    pluginApi.pluginSettings.hideOnZero = root.hideOnZero;
+
+    pluginApi.pluginSettings.customCmdGetNumUpdate = root.customCmdGetNumUpdate;
+    pluginApi.pluginSettings.customCmdDoSystemUpdate = root.customCmdDoSystemUpdate;
+
+    pluginApi.saveSettings();
+    pluginApi?.mainInstance?.startGetNumUpdates();
+
+    Logger.i("UpdateCount", "Settings saved successfully");
+    pluginApi.closePanel(root.screen);
+  }
 }

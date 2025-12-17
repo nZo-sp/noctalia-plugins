@@ -8,6 +8,7 @@
   "repository": "https://github.com/noctalia-dev/noctalia-plugins",
   "description": "Periodically scans for new updates and displays them. Clicking the widget will open a terminal script to update your packages.",
   "entryPoints": {
+    "main": "Main.qml",
     "barWidget": "BarWidget.qml",
     "settings": "Settings.qml"
   },
@@ -17,8 +18,8 @@
   "metadata": {
     "defaultSettings": {
       "updateInterval": 300000,
-      "configuredTerminal": "foot -e",
-      "configuredIcon": "world-download",
+      "updateTerminalCommand": "foot -e",
+      "currentIconName": "world-download",
       "hideOnZero": false
     }
   }

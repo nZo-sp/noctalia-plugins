@@ -1,6 +1,37 @@
 {
+  "settings": {
+    "hideWidget": {
+      "label": "Hide on Zero Updates",
+      "desc": "Hide the widget when the available update count is 0."
+    },
+    "currentIconName": {
+      "label": "Current Icon Identifier"
+    },
+    "changeIcon": {
+      "label": "Select Icon"
+    },
+    "terminal": {
+      "label": "Terminal Emulator",
+      "desc": "Terminal command used to execute the system update command.",
+      "placeholder": "Enter terminal command (e.g., foot -e, kitty -e) ..."
+    },
+    "customCmdGetNumUpdate": {
+      "label": "Custom Update Count Command",
+      "desc": "Shell command that must output a single integer representing the number of available updates.",
+      "placeholder": "e.g., yay -Quq 2>/dev/null | wc -l"
+    },
+    "customCmdDoSystemUpdate": {
+      "label": "Custom System Update Command",
+      "desc": "Shell command used to perform the system update.",
+      "placeholder": "e.g., yay -Syu"
+    },
+    "updateInterval": {
+      "label": "Update Check Interval",
+      "desc": "Polling interval for update checks"
+    }
+  },
   "tooltip": {
-    "available-update": "Click to update your system",
-    "no-update": "No updates available"
+    "updatesAvailable": "Click to run the configured system update command",
+    "noUpdatesAvailable": "No updates detected"
   }
 }
