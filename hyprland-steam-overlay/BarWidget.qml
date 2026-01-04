@@ -159,7 +159,18 @@ Rectangle {
 
     onClicked: {
       if (pluginApi) {
-        console.log("BarWidget: Calling Steam overlay toggle");
+        // Use Logger if available, fallback created by Main.qml when needed
+        if (typeof Logger === 'undefined') {
+          // best-effort fallback here as well
+          var l = {
+            d: function(m) { console.log(m); },
+            i: function(m) { if (console.info) console.info(m); else console.log(m); }
+          }
+          l.i("SteamOverlay.BarWidget: Calling Steam overlay toggle");
+        } else {
+          Logger.i("SteamOverlay.BarWidget: Calling Steam overlay toggle");
+        }
+
         // Use direct IPC call
         var ipc = Qt.createQmlObject('
           import Quickshell.Io
