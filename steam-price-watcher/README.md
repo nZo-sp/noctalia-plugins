@@ -17,28 +17,28 @@ Monitor Steam game prices and get notified when they reach your target price.
 ### Adding Games to Watchlist
 
 1. Open the plugin settings
-2. Find the Steam App ID of the game you want to monitor
-   - You can find this in the game's Steam page URL
-   - Example: `https://store.steampowered.com/app/730/` → App ID is `730` (Counter-Strike 2)
-3. Enter the App ID in the search field and click "Search"
-4. Click "Add" on the search result
-5. Set your target price (the plugin suggests 20% below current price)
-6. Click "Add to Watchlist"
+2. Enter the game name in the search field
+   - Example: "Counter Strike", "GTA", "Cyberpunk"
+3. Click "Search"
+4. The plugin will show up to 5 matching games
+5. Click "Add" on the game you want to monitor
+6. Set your target price (the plugin suggests 20% below current price)
+7. Click "Add to Watchlist"
 
-### Finding Steam App IDs
+### Game Search
 
-The Steam App ID is the number in the game's URL on the Steam store:
+Simply type the game name and the plugin will search Steam's database:
 
-- **Counter-Strike 2**: `730`
-- **Dota 2**: `570`  
-- **GTA V**: `271590`
-- **Red Dead Redemption 2**: `1174180`
-- **Cyberpunk 2077**: `1091500`
+### Game Search
 
-You can find it by:
-1. Going to the game's page on Steam
-2. Looking at the URL: `https://store.steampowered.com/app/{APP_ID}/`
-3. The number after `/app/` is the App ID
+Simply type the game name and the plugin will search Steam's database:
+
+- **Counter Strike** → Shows CS:GO, CS2, etc.
+- **GTA** → Shows GTA V, GTA IV, etc.
+- **Cyberpunk** → Shows Cyberpunk 2077
+- **Red Dead** → Shows Red Dead Redemption 2
+
+The search returns up to 5 results. Select the game you want and add it to your watchlist.
 
 ### Monitoring Prices
 
@@ -100,6 +100,7 @@ In the panel (click the widget):
 ## Changelog
 
 ### Version 1.0.0
+
 - Initial release
 - Steam API integration
 - Price monitoring with configurable intervals
@@ -109,7 +110,7 @@ In the panel (click the widget):
 
 ## Author
 
-Noctalia Community
+Lokize
 
 ## License
 
@@ -125,24 +126,24 @@ This plugin follows the same license as Noctalia Shell.
 
 ## Troubleshooting
 
-**Problem**: No prices showing  
+**Problem**: No prices showing
 **Solution**: Check your internet connection and verify the App ID is correct
 
-**Problem**: Notifications not appearing  
+**Problem**: Notifications not appearing
 **Solution**: Make sure notify-send is installed and working on your system
 
-**Problem**: "No games found" when searching  
-**Solution**: Verify the App ID is correct and the game exists on Steam
+**Problem**: "No games found" when searching
+**Solution**: Verify the App ID or Name is correct and the game exists on Steam
 
-**Problem**: Prices not updating  
+**Problem**: Prices not updating
 **Solution**: Click the refresh button in the panel or wait for the next automatic check
 
 ## Future Enhancements
 
 Potential features for future versions:
+
 - Support for multiple currencies
 - Price history tracking
 - Historical low price information
 - Steam sale event notifications
 - Wishlist import from Steam
-- Email notifications option

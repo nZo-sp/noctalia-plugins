@@ -14,8 +14,8 @@ Item {
   
   // SmartPanel properties
   readonly property var geometryPlaceholder: panelContainer
-  property real contentPreferredWidth: 450 * Style.uiScaleRatio
-  property real contentPreferredHeight: 400 * Style.uiScaleRatio
+  property real contentPreferredWidth: 500 * Style.uiScaleRatio
+  property real contentPreferredHeight: 500 * Style.uiScaleRatio
   readonly property bool allowAttach: true
   
   anchors.fill: parent
@@ -28,15 +28,35 @@ Item {
   property var watchlist: cfg.watchlist || defaults.watchlist || []
   property var gamesWithPrices: []
   property bool loading: false
+  property string currency: cfg.currency || defaults.currency || "br"
+  property string currencySymbol: cfg.currencySymbol || defaults.currencySymbol || "R$"
+
+  onWatchlistChanged: {
+    if (watchlist.length > 0 && gamesWithPrices.length === 0) {
+      gamesWithPrices = watchlist.slice();
+      Qt.callLater(refreshPrices);
+    }
+  }
 
   Component.onCompleted: {
-    refreshPrices();
+    // Initialize with watchlist data
+    if (watchlist.length > 0) {
+      gamesWithPrices = watchlist.slice();
+      Qt.callLater(refreshPrices);
+    }
   }
 
   function refreshPrices() {
-    if (loading || watchlist.length === 0) return;
+    if (watchlist.length === 0) {
+      loading = false;
+      return;
+    }
+    
     loading = true;
-    gamesWithPrices = [];
+    // Don't clear the list, just update prices
+    if (gamesWithPrices.length === 0) {
+      gamesWithPrices = watchlist.slice();
+    }
     
     for (var i = 0; i < watchlist.length; i++) {
       fetchGamePrice(watchlist[i]);
@@ -45,63 +65,88 @@ Item {
 
   property int pendingFetches: 0
 
+  Component {
+    id: priceProcessComponent
+    Process {
+      property var gameData: null
+      property string gameAppId: ""
+      running: false
+      command: ["curl", "-s", "https://store.steampowered.com/api/appdetails?appids=" + gameAppId + "&cc=" + root.currency]
+      stdout: StdioCollector {}
+      
+      onExited: (exitCode) => {
+        if (exitCode === 0) {
+          try {
+            var response = JSON.parse(stdout.text);
+            var appData = response[gameAppId];
+            if (appData && appData.success && appData.data) {
+              var priceData = appData.data.price_overview;
+              if (priceData) {
+                gameData.currentPrice = priceData.final / 100;
+                gameData.currency = priceData.currency;
+                gameData.discountPercent = priceData.discount_percent || 0;
+                root.addGameWithPrice(gameData);
+              } else {
+                gameData.currentPrice = 0;
+                gameData.currency = "BRL";
+                gameData.error = "Preço não disponível";
+                root.addGameWithPrice(gameData);
+              }
+            }
+          } catch (e) {
+            console.error("Error parsing Steam API response:", e);
+            gameData.error = "Erro ao buscar preço";
+            root.addGameWithPrice(gameData);
+          }
+        }
+        
+        root.pendingFetches--;
+        if (root.pendingFetches === 0) {
+          root.loading = false;
+        }
+        
+        destroy();
+      }
+    }
+  }
+
   function fetchGamePrice(game) {
     pendingFetches++;
     
-    var process = Qt.createQmlObject(`
-      import Quickshell.Io
-      Process {
-        id: priceProcess
-        running: false
-        command: ["curl", "-s", "https://store.steampowered.com/api/appdetails?appids=${game.appId}&cc=br"]
-        stdout: StdioCollector {}
-        property var gameData: null
-        
-        Component.onCompleted: {
-          gameData = ${JSON.stringify(game)};
-          running = true;
-        }
-        
-        onExited: (exitCode) => {
-          if (exitCode === 0) {
-            try {
-              var response = JSON.parse(stdout.text);
-              var appData = response["${game.appId}"];
-              if (appData && appData.success && appData.data) {
-                var priceData = appData.data.price_overview;
-                if (priceData) {
-                  gameData.currentPrice = priceData.final / 100;
-                  gameData.currency = priceData.currency;
-                  gameData.discountPercent = priceData.discount_percent || 0;
-                  root.addGameWithPrice(gameData);
-                } else {
-                  gameData.currentPrice = 0;
-                  gameData.currency = "BRL";
-                  gameData.error = "Preço não disponível";
-                  root.addGameWithPrice(gameData);
-                }
-              }
-            } catch (e) {
-              console.error("Error parsing Steam API response:", e);
-              gameData.error = "Erro ao buscar preço";
-              root.addGameWithPrice(gameData);
-            }
-          }
-          
-          root.pendingFetches--;
-          if (root.pendingFetches === 0) {
-            root.loading = false;
-          }
-          
-          priceProcess.destroy();
-        }
-      }
-    `, root, "priceProcess");
+    var process = priceProcessComponent.createObject(root, {
+      gameData: game,
+      gameAppId: game.appId.toString()
+    });
+    process.running = true;
   }
 
   function addGameWithPrice(game) {
     var temp = gamesWithPrices.slice();
-    temp.push(game);
+    var found = false;
+    
+    // Update existing game or add new one
+    for (var i = 0; i < temp.length; i++) {
+      if (temp[i].appId === game.appId) {
+        temp[i] = game;
+        found = true;
+        break;
+      }
+    }
+    
+    if (!found) {
+      temp.push(game);
+    }
+    
+    // Sort: games at target price first, then others
+    temp.sort(function(a, b) {
+      var aAtTarget = a.currentPrice && a.currentPrice <= a.targetPrice;
+      var bAtTarget = b.currentPrice && b.currentPrice <= b.targetPrice;
+      
+      if (aAtTarget && !bAtTarget) return -1;
+      if (!aAtTarget && bAtTarget) return 1;
+      return 0;
+    });
+    
     gamesWithPrices = temp;
   }
 
@@ -115,8 +160,24 @@ Item {
     
     if (pluginApi && pluginApi.pluginSettings) {
       pluginApi.pluginSettings.watchlist = temp;
+      
+      // Remover jogo da lista de notificados
+      var notifiedGames = pluginApi.pluginSettings.notifiedGames || [];
+      var notifiedTemp = [];
+      for (var j = 0; j < notifiedGames.length; j++) {
+        if (notifiedGames[j] !== appId) {
+          notifiedTemp.push(notifiedGames[j]);
+        }
+      }
+      pluginApi.pluginSettings.notifiedGames = notifiedTemp;
+      
       pluginApi.saveSettings();
-      console.log("Steam Price Watcher: Removed game", appId);
+      
+      // Atualizar a lista local
+      root.watchlist = temp;
+      root.gamesWithPrices = temp.slice();
+      
+      console.log("Steam Price Watcher: Removed game", appId, "and cleared from notifications");
     }
     
     refreshPrices();
@@ -200,74 +261,168 @@ Item {
       }
 
       // Games list
-      NBox {
+      ScrollView {
         Layout.fillWidth: true
         Layout.fillHeight: true
-        color: Color.mSurface
+        clip: true
 
-        ColumnLayout {
-          anchors.fill: parent
-          anchors.margins: Style.marginM
+        ListView {
+          id: gamesListView
+          model: root.gamesWithPrices
           spacing: Style.marginM
 
-          NText {
-            text: loading ? 
-              (pluginApi?.tr("steam-price-watcher.loading-prices") || "Carregando preços...") :
-              watchlist.length === 0 ?
-                (pluginApi?.tr("steam-price-watcher.no-games-message") || "Nenhum jogo cadastrado. Adicione jogos nas configurações.") :
-                `${watchlist.length} ${watchlist.length === 1 ? "jogo" : "jogos"} na watchlist`
-            color: Color.mOnSurface
-            pointSize: Style.fontSizeM
-            Layout.fillWidth: true
+          header: ColumnLayout {
+            width: gamesListView.width
+            spacing: Style.marginS
+
+            NText {
+              Layout.fillWidth: true
+              Layout.margins: Style.marginM
+              text: root.loading ? 
+                (pluginApi?.tr("steam-price-watcher.loading-prices") || "Carregando preços...") :
+                root.watchlist.length === 0 ?
+                  (pluginApi?.tr("steam-price-watcher.no-games-message") || "Nenhum jogo na watchlist.\nAdicione jogos nas configurações.") :
+                  `${root.gamesWithPrices.length} ${root.gamesWithPrices.length === 1 ? (pluginApi?.tr("steam-price-watcher.game") || "jogo") : (pluginApi?.tr("steam-price-watcher.games") || "jogos")}`
+              color: Color.mOnSurface
+              pointSize: Style.fontSizeL
+              font.weight: Style.fontWeightBold
+              horizontalAlignment: Text.AlignHCenter
+            }
+
+            // Section header for games at target price
+            NText {
+              Layout.fillWidth: true
+              Layout.leftMargin: Style.marginM
+              Layout.rightMargin: Style.marginM
+              text: pluginApi?.tr("steam-price-watcher.on-target-section") || "🎯 Jogos no preço-alvo"
+              color: Color.mPrimary
+              pointSize: Style.fontSizeM
+              font.weight: Style.fontWeightBold
+              visible: root.gamesWithPrices.some(g => g.currentPrice && g.currentPrice <= g.targetPrice)
+            }
           }
 
-          ScrollView {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            clip: true
+          delegate: ColumnLayout {
+            required property var modelData
+            required property int index
 
-            ListView {
-              id: gamesListView
-              model: gamesWithPrices
-              spacing: Style.marginS
+            width: gamesListView.width
+            spacing: 0
 
-              delegate: NBox {
-                required property var modelData
-                required property int index
+            // Separator before first game not at target
+            Item {
+              Layout.fillWidth: true
+              Layout.preferredHeight: separatorContent.implicitHeight + Style.marginM * 2
+              visible: {
+                if (index === 0) return false;
+                var currentAtTarget = modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice;
+                var previousAtTarget = root.gamesWithPrices[index - 1].currentPrice && 
+                                      root.gamesWithPrices[index - 1].currentPrice <= root.gamesWithPrices[index - 1].targetPrice;
+                return previousAtTarget && !currentAtTarget;
+              }
 
-                width: gamesListView.width
-                implicitHeight: gameContent.implicitHeight + Style.marginM * 2
-                color: modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ? 
-                  Color.mSuccessContainer : Color.mSurfaceVariant
+              ColumnLayout {
+                id: separatorContent
+                anchors.fill: parent
+                spacing: Style.marginS
 
-                ColumnLayout {
-                  id: gameContent
+                Rectangle {
+                  Layout.fillWidth: true
+                  Layout.preferredHeight: 1
+                  Layout.leftMargin: Style.marginM
+                  Layout.rightMargin: Style.marginM
+                  color: Color.mOutline
+                }
+
+                NText {
+                  Layout.fillWidth: true
+                  Layout.leftMargin: Style.marginM
+                  Layout.rightMargin: Style.marginM
+                  text: pluginApi?.tr("steam-price-watcher.monitoring-section") || "👀 Monitorando"
+                  color: Color.mOnSurfaceVariant
+                  pointSize: Style.fontSizeM
+                  font.weight: Style.fontWeightBold
+                }
+              }
+            }
+
+            // Game card
+            NBox {
+              Layout.fillWidth: true
+              implicitHeight: gameContent.implicitHeight + Style.marginM * 2
+              color: modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ? 
+                Color.mPrimary : Color.mSurfaceVariant
+
+              RowLayout {
+                id: gameContent
+                anchors.fill: parent
+                anchors.margins: Style.marginM
+                spacing: Style.marginM
+
+              // Game image
+              Rectangle {
+                Layout.preferredWidth: 184 * Style.uiScaleRatio * 0.8
+                Layout.preferredHeight: 69 * Style.uiScaleRatio * 0.8
+                Layout.alignment: Qt.AlignTop
+                color: Color.mSurface
+                radius: Style.iRadiusS
+                border.color: Color.mOutline
+                border.width: 1
+                
+                Image {
                   anchors.fill: parent
-                  anchors.margins: Style.marginM
+                  anchors.margins: 1
+                  source: `https://cdn.cloudflare.steamstatic.com/steam/apps/${modelData.appId}/capsule_184x69.jpg`
+                  fillMode: Image.PreserveAspectFit
+                  asynchronous: true
+                  
+                  Rectangle {
+                    anchors.fill: parent
+                    color: Color.mSurface
+                    visible: parent.status === Image.Loading || parent.status === Image.Error
+                    radius: Style.iRadiusS
+                    
+                    NIcon {
+                      anchors.centerIn: parent
+                      icon: "gamepad"
+                      color: Color.mOnSurfaceVariant
+                      pointSize: 24
+                    }
+                  }
+                }
+              }
+
+              // Game info
+              ColumnLayout {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                spacing: Style.marginXS
+
+                // Name and actions
+                RowLayout {
+                  Layout.fillWidth: true
                   spacing: Style.marginS
 
-                  RowLayout {
+                  NText {
+                    text: modelData.name
+                    color: modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ? 
+                      Color.mOnPrimary : Color.mOnSurface
+                    pointSize: Style.fontSizeL
+                    font.weight: Style.fontWeightBold
                     Layout.fillWidth: true
-                    spacing: Style.marginM
+                    wrapMode: Text.WordWrap
+                  }
 
-                    ColumnLayout {
-                      Layout.fillWidth: true
-                      spacing: Style.marginXS
+                  RowLayout {
+                    spacing: Style.marginXS
 
-                      NText {
-                        text: modelData.name
-                        color: Color.mOnSurface
-                        pointSize: Style.fontSizeM
-                        font.weight: Style.fontWeightBold
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                      }
-
-                      NText {
-                        text: `App ID: ${modelData.appId}`
-                        color: Color.mOnSurfaceVariant
-                        pointSize: Style.fontSizeS
-                      }
+                    NIconButton {
+                      icon: "pencil"
+                      tooltipText: pluginApi?.tr("steam-price-watcher.edit") || "Editar"
+                      baseSize: Style.baseWidgetSize * 0.7
+                      colorBg: Color.mSurface
+                      colorFg: Color.mOnSurface
+                      onClicked: editPriceDialog.open(modelData)
                     }
 
                     NIconButton {
@@ -279,86 +434,138 @@ Item {
                       onClicked: removeGame(modelData.appId)
                     }
                   }
+                }
 
-                  Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 1
-                    color: Color.mOutline
+                NText {
+                  text: modelData.addedDate ? 
+                    `📅 ${new Date(modelData.addedDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}` :
+                    `🔢 App ID: ${modelData.appId}`
+                  color: modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ? 
+                    Color.mOnPrimary : Color.mOnSurfaceVariant
+                  pointSize: Style.fontSizeXS
+                  opacity: 0.8
+                }
+
+                Rectangle {
+                  Layout.fillWidth: true
+                  Layout.preferredHeight: 1
+                  color: modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ? 
+                    Color.mOnPrimary : Color.mOutline
+                  opacity: 0.3
+                }
+
+                // Prices in grid
+                GridLayout {
+                  Layout.fillWidth: true
+                  columns: 3
+                  columnSpacing: Style.marginL
+                  rowSpacing: Style.marginXS
+
+                  // Preço alvo
+                  NText {
+                    text: pluginApi?.tr("steam-price-watcher.target-price") || "🎯 Target:"
+                    color: modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ? 
+                      Color.mOnPrimary : Color.mOnSurfaceVariant
+                    pointSize: Style.fontSizeS
+                    font.weight: Style.fontWeightMedium
                   }
 
-                  GridLayout {
-                    Layout.fillWidth: true
-                    columns: 2
-                    columnSpacing: Style.marginM
-                    rowSpacing: Style.marginS
+                  NText {
+                    text: `${root.currencySymbol} ${modelData.targetPrice.toFixed(2)}`
+                    color: modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ? 
+                      Color.mOnPrimary : Color.mPrimary
+                    pointSize: Style.fontSizeXL
+                    font.weight: Style.fontWeightBold
+                  }
 
-                    // Current price
-                    NText {
-                      text: pluginApi?.tr("steam-price-watcher.current-price") || "Preço atual:"
-                      color: Color.mOnSurfaceVariant
-                      pointSize: Style.fontSizeS
-                    }
+                  Item { Layout.fillWidth: true }
+
+                  // Preço atual
+                  NText {
+                    text: pluginApi?.tr("steam-price-watcher.current-price") || "💰 Current:"
+                    color: modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ? 
+                      Color.mOnPrimary : Color.mOnSurfaceVariant
+                    pointSize: Style.fontSizeS
+                    font.weight: Style.fontWeightMedium
+                  }
+
+                  ColumnLayout {
+                    spacing: 2
 
                     NText {
                       text: modelData.error ? modelData.error : 
                         modelData.currentPrice !== undefined ? 
-                          `R$ ${modelData.currentPrice.toFixed(2)}${modelData.discountPercent > 0 ? " (-" + modelData.discountPercent + "%)" : ""}` :
-                          (pluginApi?.tr("steam-price-watcher.loading") || "Carregando...")
+                          `${root.currencySymbol} ${modelData.currentPrice.toFixed(2)}` :
+                          "..."
                       color: modelData.error ? Color.mError : 
-                        modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ? Color.mSuccess : Color.mOnSurface
-                      pointSize: Style.fontSizeM
+                        modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ? 
+                          Color.mOnPrimary : Color.mOnSurface
+                      pointSize: Style.fontSizeXL
                       font.weight: Style.fontWeightBold
-                    }
-
-                    // Target price
-                    NText {
-                      text: pluginApi?.tr("steam-price-watcher.target-price") || "Preço alvo:"
-                      color: Color.mOnSurfaceVariant
-                      pointSize: Style.fontSizeS
                     }
 
                     RowLayout {
                       spacing: Style.marginS
+                      visible: modelData.currentPrice !== undefined && !modelData.error
 
+                      // Diferença em relação ao alvo
                       NText {
-                        text: `R$ ${modelData.targetPrice.toFixed(2)}`
-                        color: Color.mPrimary
-                        pointSize: Style.fontSizeM
-                        font.weight: Style.fontWeightBold
+                        text: {
+                          if (modelData.currentPrice <= modelData.targetPrice) {
+                            var saved = ((modelData.targetPrice - modelData.currentPrice) / modelData.targetPrice * 100).toFixed(0)
+                            return saved > 0 ? `↓ ${saved}% do alvo` : "✓ Alvo atingido"
+                          } else {
+                            var above = ((modelData.currentPrice - modelData.targetPrice) / modelData.targetPrice * 100).toFixed(0)
+                            return `↑ ${above}% acima`
+                          }
+                        }
+                        color: modelData.currentPrice <= modelData.targetPrice ? 
+                          (modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ? Color.mOnPrimary : Color.mPrimary) :
+                          Color.mError
+                        pointSize: Style.fontSizeXS
+                        font.weight: Style.fontWeightMedium
                       }
 
-                      NIconButton {
-                        icon: "pencil"
-                        tooltipText: pluginApi?.tr("steam-price-watcher.edit-price") || "Editar preço"
-                        baseSize: Style.baseWidgetSize * 0.6
-                        onClicked: editPriceDialog.open(modelData)
+                      // Desconto da Steam
+                      Rectangle {
+                        visible: (modelData.discountPercent && modelData.discountPercent > 0) ? true : false
+                        Layout.preferredWidth: steamDiscountText.implicitWidth + Style.marginS
+                        Layout.preferredHeight: steamDiscountText.implicitHeight + 2
+                        radius: Style.iRadiusS
+                        color: Color.mError
+
+                        NText {
+                          id: steamDiscountText
+                          anchors.centerIn: parent
+                          text: `-${modelData.discountPercent}%`
+                          color: Color.mOnError
+                          pointSize: Style.fontSizeXS
+                          font.weight: Style.fontWeightBold
+                        }
                       }
                     }
                   }
 
-                  // Status indicator
-                  Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: statusText.implicitHeight + Style.marginS * 2
-                    radius: Style.iRadiusS
-                    color: modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ?
-                      Color.mSuccess : Color.transparent
-                    border.color: modelData.currentPrice && modelData.currentPrice <= modelData.targetPrice ?
-                      Color.mSuccess : Color.mOutline
-                    border.width: Style.borderS
-                    visible: modelData.currentPrice !== undefined && !modelData.error
+                  Item { Layout.fillWidth: true }
+                }
+              }
 
-                    NText {
-                      id: statusText
-                      anchors.centerIn: parent
-                      text: modelData.currentPrice <= modelData.targetPrice ?
-                        "🎯 " + (pluginApi?.tr("steam-price-watcher.target-reached") || "Preço-alvo atingido!") :
-                        `💰 ${((1 - modelData.currentPrice / modelData.targetPrice) * 100).toFixed(0)}% ${pluginApi?.tr("steam-price-watcher.above-target") || "acima do alvo"}`
-                      color: modelData.currentPrice <= modelData.targetPrice ? Color.mOnSuccess : Color.mOnSurfaceVariant
-                      pointSize: Style.fontSizeS
-                      font.weight: Style.fontWeightMedium
-                    }
-                  }
+              // Action buttons
+              ColumnLayout {
+                spacing: Style.marginS
+
+                NIconButton {
+                  icon: "edit"
+                  tooltipText: pluginApi?.tr("steam-price-watcher.edit-price") || "Editar preço"
+                  baseSize: Style.baseWidgetSize * 0.8
+                  onClicked: editPriceDialog.open(modelData)
+                }
+
+                NIconButton {
+                  icon: "delete"
+                  tooltipText: pluginApi?.tr("steam-price-watcher.remove") || "Remover"
+                  baseSize: Style.baseWidgetSize * 0.8
+                  onClicked: removeGame(modelData.appId)
                 }
               }
             }
@@ -366,6 +573,7 @@ Item {
         }
       }
     }
+  }
   }
 
   // Edit Price Dialog
@@ -415,7 +623,7 @@ Item {
         spacing: Style.marginM
 
         NText {
-          text: "R$"
+          text: root.currencySymbol
           color: Color.mOnSurface
           pointSize: Style.fontSizeM
         }

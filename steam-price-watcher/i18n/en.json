@@ -2,11 +2,16 @@
   "steam-price-watcher": {
     "loading": "Checking...",
     "no-games": "No games",
+    "game": "game",
+    "games": "games",
+    "of": "of",
+    "on-target-section": "🎯 Games at target price",
+    "monitoring-section": "👀 Monitoring",
     "refresh": "Refresh prices",
     "loading-prices": "Loading prices...",
     "no-games-message": "No games added. Add games in settings.",
-    "current-price": "Current price:",
-    "target-price": "Target price:",
+    "current-price": "💰 Current:",
+    "target-price": "🎯 Target:",
     "edit-price": "Edit price",
     "remove": "Remove",
     "target-reached": "Target price reached!",
@@ -27,6 +32,8 @@
       "check-every": "Check prices every",
       "minutes": "minutes",
       "interval-warning": "⚠️ Very short intervals may result in many API requests.",
+      "currency": "Currency",
+      "currency-description": "Select the currency for displaying Steam prices.",
       "add-games": "Add Games",
       "search-hint": "Search games by name or Steam App ID. You can find the App ID in the game's page URL.",
       "search-placeholder": "Enter App ID (e.g., 730 for CS2)",
@@ -42,7 +49,8 @@
       "add-to-watchlist": "Add to Watchlist",
       "current-price-label": "Current price:",
       "target-price-label": "Target price ($):",
-      "target-price-hint": "💡 We suggest 20% below current price for good deals."
+      "target-price-hint": "💡 We suggest 20% below current price for good deals.",
+      "settings-saved": "Plugin settings saved."
     }
   }
 }

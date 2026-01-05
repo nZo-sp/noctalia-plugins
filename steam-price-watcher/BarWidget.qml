@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import Qt.labs.platform
 import qs.Commons
 import qs.Services.UI
 import qs.Widgets
@@ -22,9 +23,11 @@ Rectangle {
   property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
   // Widget settings
-  readonly property var watchlist: cfg.watchlist || defaults.watchlist || []
-  readonly property int checkInterval: cfg.checkInterval ?? defaults.checkInterval ?? 30
-  readonly property var notifiedGames: cfg.notifiedGames || defaults.notifiedGames || []
+  property var watchlist: cfg.watchlist || defaults.watchlist || []
+  property int checkInterval: cfg.checkInterval ?? defaults.checkInterval ?? 30
+  property var notifiedGames: cfg.notifiedGames || defaults.notifiedGames || []
+  property string currency: cfg.currency || defaults.currency || "br"
+  property string currencySymbol: cfg.currencySymbol || defaults.currencySymbol || "R$"
 
   // State
   property var gamesOnTarget: []
@@ -62,6 +65,16 @@ Rectangle {
     onTriggered: checkPrices()
   }
 
+  // Watch for configuration changes
+  onCfgChanged: {
+    watchlist = cfg.watchlist || defaults.watchlist || [];
+    notifiedGames = cfg.notifiedGames || defaults.notifiedGames || [];
+    currency = cfg.currency || defaults.currency || "br";
+    currencySymbol = cfg.currencySymbol || defaults.currencySymbol || "R$";
+    console.log("Steam Price Watcher: Configuration updated");
+    console.log("New watchlist length:", watchlist.length);
+  }
+
   Component.onCompleted: {
     console.log("Steam Price Watcher Widget loaded");
     console.log("Watchlist:", JSON.stringify(watchlist));
@@ -71,6 +84,9 @@ Rectangle {
     if (loading || watchlist.length === 0) return;
     loading = true;
     
+    // Limpar lista de jogos que atingiram o alvo para revalidar
+    gamesOnTarget = [];
+    
     var games = [];
     for (var i = 0; i < watchlist.length; i++) {
       var game = watchlist[i];
@@ -79,61 +95,66 @@ Rectangle {
   }
 
   property int pendingChecks: 0
+  property var activeProcesses: []
+
+  Component {
+    id: processComponent
+    Process {
+      property var gameData: null
+      property string gameAppId: ""
+      running: false
+      command: ["curl", "-s", "https://store.steampowered.com/api/appdetails?appids=" + gameAppId + "&cc=" + root.currency]
+      stdout: StdioCollector {}
+      
+      onExited: (exitCode) => {
+        if (exitCode === 0) {
+          try {
+            var response = JSON.parse(stdout.text);
+            var appData = response[gameAppId];
+            if (appData && appData.success && appData.data) {
+              var priceData = appData.data.price_overview;
+              if (priceData) {
+                var currentPrice = priceData.final / 100;
+                gameData.currentPrice = currentPrice;
+                gameData.currency = priceData.currency;
+                
+                if (currentPrice <= gameData.targetPrice) {
+                  root.addGameOnTarget(gameData);
+                }
+              }
+            }
+          } catch (e) {
+            console.error("Error parsing Steam API response:", e);
+          }
+        }
+        
+        root.pendingChecks--;
+        if (root.pendingChecks === 0) {
+          root.loading = false;
+        }
+        
+        destroy();
+      }
+    }
+  }
 
   function checkGamePrice(game) {
     pendingChecks++;
     
-    var process = Qt.createQmlObject(`
-      import Quickshell.Io
-      Process {
-        id: priceProcess
-        running: false
-        command: ["curl", "-s", "https://store.steampowered.com/api/appdetails?appids=${game.appId}&cc=br"]
-        stdout: StdioCollector {}
-        property var gameData: null
-        
-        Component.onCompleted: {
-          gameData = ${JSON.stringify(game)};
-          running = true;
-        }
-        
-        onExited: (exitCode) => {
-          if (exitCode === 0) {
-            try {
-              var response = JSON.parse(stdout.text);
-              var appData = response["${game.appId}"];
-              if (appData && appData.success && appData.data) {
-                var priceData = appData.data.price_overview;
-                if (priceData) {
-                  var currentPrice = priceData.final / 100;
-                  gameData.currentPrice = currentPrice;
-                  gameData.currency = priceData.currency;
-                  
-                  if (currentPrice <= gameData.targetPrice) {
-                    root.addGameOnTarget(gameData);
-                  }
-                }
-              }
-            } catch (e) {
-              console.error("Error parsing Steam API response:", e);
-            }
-          }
-          
-          root.pendingChecks--;
-          if (root.pendingChecks === 0) {
-            root.loading = false;
-          }
-          
-          priceProcess.destroy();
-        }
-      }
-    `, root, "priceProcess");
+    var process = processComponent.createObject(root, {
+      gameData: game,
+      gameAppId: game.appId.toString()
+    });
+    process.running = true;
   }
 
   function addGameOnTarget(game) {
+    console.log("Steam Price Watcher: Game on target detected:", game.name, game.appId);
+    
     // Check if already in list
     for (var i = 0; i < gamesOnTarget.length; i++) {
       if (gamesOnTarget[i].appId === game.appId) {
+        console.log("Steam Price Watcher: Game already in target list");
         return;
       }
     }
@@ -143,9 +164,15 @@ Rectangle {
     gamesOnTarget = temp;
     
     // Send notification if not already notified
-    if (!isGameNotified(game.appId)) {
+    var wasNotified = isGameNotified(game.appId);
+    console.log("Steam Price Watcher: Was game already notified?", wasNotified);
+    
+    if (!wasNotified) {
+      console.log("Steam Price Watcher: Calling sendNotification");
       sendNotification(game);
       markGameAsNotified(game.appId);
+    } else {
+      console.log("Steam Price Watcher: Skipping notification - already notified");
     }
   }
 
@@ -163,29 +190,52 @@ Rectangle {
   }
 
   function sendNotification(game) {
-    var notifyProcess = Qt.createQmlObject(`
+    console.log("Steam Price Watcher: Sending notification for", game.name);
+    
+    var symbol = root.currencySymbol;
+    
+    // Usar variável de ambiente HOME
+    var homeProcess = Qt.createQmlObject(`
       import Quickshell.Io
       Process {
         running: true
-        command: [
-          "notify-send",
-          "-a", "Noctalia Shell",
-          "-i", "applications-games",
-          "🎮 Steam Price Watcher",
-          "${game.name} atingiu R$ ${game.currentPrice.toFixed(2)}!\\nPreço alvo: R$ ${game.targetPrice.toFixed(2)}"
-        ]
-        onExited: (exitCode) => {
-          destroy();
-        }
+        command: ["sh", "-c", "echo $HOME"]
+        stdout: StdioCollector {}
       }
-    `, root, "notifyProcess");
+    `, root, "homeProcess");
+    
+    homeProcess.exited.connect((exitCode) => {
+      var homeDir = homeProcess.stdout.text.trim();
+      var iconPath = homeDir + "/.config/noctalia/plugins/steam-price-watcher/logo-notification.png";
+      
+      console.log("Steam Price Watcher: Icon path:", iconPath);
+      
+      var notifyCmd = '["notify-send", "-a", "Noctalia Shell", "-i", "' + iconPath + '", "🎮 Steam Price Watcher", "' + game.name + ' atingiu ' + symbol + ' ' + game.currentPrice.toFixed(2) + '!\\nPreço alvo: ' + symbol + ' ' + game.targetPrice.toFixed(2) + '"]';
+      
+      var notifyProcess = Qt.createQmlObject(
+        'import Quickshell.Io; Process { running: true; command: ' + notifyCmd + '; onExited: (exitCode) => { console.log("Steam Price Watcher: Notification sent, exit code:", exitCode); destroy(); } }',
+        root,
+        "notifyProcess"
+      );
+      
+      homeProcess.destroy();
+    });
   }
 
   readonly property string displayText: {
     if (loading) return pluginApi?.tr("steam-price-watcher.loading") || "Verificando...";
     if (watchlist.length === 0) return pluginApi?.tr("steam-price-watcher.no-games") || "Sem jogos";
-    if (hasNotifications) return `${gamesOnTarget.length} ${gamesOnTarget.length === 1 ? "jogo" : "jogos"}`;
-    return `${watchlist.length} ${watchlist.length === 1 ? "jogo" : "jogos"}`;
+    if (hasNotifications) {
+      var gameWord = gamesOnTarget.length === 1 ? 
+        (pluginApi?.tr("steam-price-watcher.game") || "jogo") : 
+        (pluginApi?.tr("steam-price-watcher.games") || "jogos");
+      var ofWord = pluginApi?.tr("steam-price-watcher.of") || "de";
+      return `${gamesOnTarget.length} ${ofWord} ${watchlist.length} ${gameWord}`;
+    }
+    var gameWord = watchlist.length === 1 ? 
+      (pluginApi?.tr("steam-price-watcher.game") || "jogo") : 
+      (pluginApi?.tr("steam-price-watcher.games") || "jogos");
+    return `${watchlist.length} ${gameWord}`;
   }
 
   readonly property string tooltipText: {
@@ -197,7 +247,10 @@ Rectangle {
       return text + "\n\n" + (pluginApi?.tr("steam-price-watcher.tooltip.click") || "Clique para ver detalhes");
     }
     if (watchlist.length > 0) {
-      return (pluginApi?.tr("steam-price-watcher.tooltip.monitoring") || "Monitorando") + ` ${watchlist.length} ${watchlist.length === 1 ? "jogo" : "jogos"}`;
+      var gameWord = watchlist.length === 1 ? 
+        (pluginApi?.tr("steam-price-watcher.game") || "jogo") : 
+        (pluginApi?.tr("steam-price-watcher.games") || "jogos");
+      return (pluginApi?.tr("steam-price-watcher.tooltip.monitoring") || "Monitorando") + ` ${watchlist.length} ${gameWord}`;
     }
     return pluginApi?.tr("steam-price-watcher.tooltip.no-games") || "Nenhum jogo cadastrado";
   }

@@ -2,7 +2,7 @@
   "id": "steam-price-watcher",
   "name": "Steam Price Watcher",
   "version": "1.0.0",
-  "author": "Noctalia Community",
+  "author": "Lokize",
   "description": "Monitor Steam game prices and get notified when they reach your target price",
   "minNoctaliaVersion": "3.6.0",
   "entryPoints": {
@@ -15,7 +15,9 @@
     "defaultSettings": {
       "watchlist": [],
       "checkInterval": 30,
-      "notifiedGames": []
+      "notifiedGames": [],
+      "currency": "br",
+      "currencySymbol": "R$"
     }
   }
 }
