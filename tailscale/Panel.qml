@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import qs.Commons
 import qs.Widgets
 
@@ -11,6 +12,12 @@ Item {
   readonly property bool allowAttach: true
 
   readonly property var mainInstance: pluginApi?.mainInstance
+
+  onPluginApiChanged: {
+    if (pluginApi && pluginApi.mainInstance) {
+      mainInstanceChanged()
+    }
+  }
 
   readonly property bool panelReady: pluginApi !== null && mainInstance !== null && mainInstance !== undefined
 
@@ -89,8 +96,6 @@ Item {
             clip: true
             contentWidth: peerListColumn.width
             contentHeight: peerListColumn.height
-
-            ScrollBar.vertical: NScrollBar {}
 
             ColumnLayout {
               id: peerListColumn
