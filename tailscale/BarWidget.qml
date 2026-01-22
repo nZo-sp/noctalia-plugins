@@ -19,17 +19,10 @@ Rectangle {
 
   readonly property var mainInstance: pluginApi?.mainInstance
 
-  implicitWidth: {
-    if (barIsVertical) return Style.capsuleHeight
-    if (compactMode) return Style.capsuleHeight
-    return contentRow.implicitWidth + Style.marginM * 2
-  }
+  implicitWidth: Style.capsuleHeight
   implicitHeight: Style.capsuleHeight
 
   readonly property bool barIsVertical: Settings.data.bar.position === "left" || Settings.data.bar.position === "right"
-  readonly property bool compactMode: mainInstance?.compactMode ?? false
-  readonly property bool showIpAddress: mainInstance?.showIpAddress ?? true
-  readonly property bool showPeerCount: mainInstance?.showPeerCount ?? true
 
   color: Style.capsuleColor
 
@@ -44,6 +37,7 @@ Rectangle {
     TailscaleIcon {
       pointSize: Style.fontSizeL
       applyUiScale: false
+      crossed: !mainInstance?.tailscaleRunning
       color: {
         if (mainInstance?.tailscaleRunning) return Color.mPrimary
         return mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
@@ -51,21 +45,7 @@ Rectangle {
       opacity: mainInstance?.isRefreshing ? 0.5 : 1.0
     }
 
-    NText {
-      visible: !barIsVertical && !compactMode && mainInstance?.tailscaleInstalled && mainInstance?.tailscaleRunning && showIpAddress && mainInstance?.tailscaleIp
-      family: Settings.data.ui.fontFixed
-      pointSize: Style.barFontSize
-      text: mainInstance?.tailscaleIp || ""
-      color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
-    }
 
-    NText {
-      visible: !barIsVertical && !compactMode && mainInstance?.tailscaleInstalled && mainInstance?.tailscaleRunning && showPeerCount
-      family: Settings.data.ui.fontFixed
-      pointSize: Style.barFontSize
-      text: "(" + (mainInstance?.peerCount || 0) + ")"
-      color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
-    }
   }
 
   MouseArea {

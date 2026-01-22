@@ -10,6 +10,7 @@ Item {
   property real pointSize: Style.fontSizeL
   property bool applyUiScale: true
   property color color: Color.mOnSurface
+  property bool crossed: false
 
   implicitWidth: Math.max(1, applyUiScale ? root.pointSize * Style.uiScaleRatio : root.pointSize)
   implicitHeight: Math.max(1, applyUiScale ? root.pointSize * Style.uiScaleRatio : root.pointSize)
@@ -27,5 +28,15 @@ Item {
       colorization: 1.0
       colorizationColor: root.color
     }
+  }
+
+  Rectangle {
+    visible: root.crossed
+    anchors.centerIn: parent
+    width: parent.width * 1.2
+    height: parent.height * 0.15
+    radius: height / 2
+    color: root.color
+    rotation: -45
   }
 }

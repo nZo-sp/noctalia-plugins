@@ -32,6 +32,7 @@
     "peers": "peers",
     "online": "Online",
     "offline": "Offline",
-    "no-peers": "No connected peers"
+    "no-peers": "No connected peers",
+    "admin-console": "Admin Console"
   }
 }

@@ -233,6 +233,32 @@ Item {
           }
         }
       }
+
+      NButton {
+        Layout.fillWidth: true
+        visible: mainInstance?.tailscaleRunning
+        text: pluginApi?.tr("panel.admin-console") || "Admin Console"
+        icon: "external-link"
+        onClicked: {
+          Qt.openUrlExternally("https://login.tailscale.com/admin")
+        }
+      }
+
+      NButton {
+        Layout.fillWidth: true
+        text: mainInstance?.tailscaleRunning 
+          ? (pluginApi?.tr("context.disconnect") || "Disconnect")
+          : (pluginApi?.tr("context.connect") || "Connect")
+        icon: mainInstance?.tailscaleRunning ? "plug-x" : "plug"
+        backgroundColor: mainInstance?.tailscaleRunning ? Color.mError : Color.mPrimary
+        textColor: mainInstance?.tailscaleRunning ? Color.mOnError : Color.mOnPrimary
+        enabled: mainInstance?.tailscaleInstalled
+        onClicked: {
+          if (mainInstance) {
+            mainInstance.toggleTailscale()
+          }
+        }
+      }
     }
   }
 }
