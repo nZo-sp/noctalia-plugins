@@ -14,18 +14,19 @@ Item {
     property int batteryMaxThresh: 100
 
     property list<string> batteries: []
-    readonly property string thresholdFile: "/sys/class/power_supply/BAT0/charge_control_end_threshold"
+    property string thresholdFile: `${pluginApi?.pluginSettings?.batteryDevice || service.batteries[0]}/charge_control_end_threshold`
 
-    Component.onCompleted: {
-        batteryChecker.running = true;
+    function start(api) {
+        pluginApi = api;
         getBatteries();
+        batteryChecker.running = true;
     }
 
     function refresh() {
+        batteryChecker.running = true;
         if (thresholdFileView.path !== "") {
             thresholdFileView.reload();
         }
-        getBatteries();
     }
 
     function restoreSavedThreshold() {
@@ -56,6 +57,10 @@ Item {
             restoreSavedThreshold();
     }
 
+    onThresholdFileChanged: {
+        batteryChecker.running = true;
+    }
+
     Process {
         id: batteryChecker
         command: ["test", "-f", root.thresholdFile]
@@ -84,7 +89,7 @@ Item {
 
     FileView {
         id: thresholdFileView
-        path: ""
+        path: root.thresholdFile
         printErrors: false
 
         onLoaded: {
@@ -108,7 +113,7 @@ Item {
 
         stdout: StdioCollector {
             onStreamFinished: {
-                root.batteries = text.split("\n").map(path => path.split("/").slice(0, -1).join("/"));
+                root.batteries = text.split("\n").slice(0, -1).map(path => path.split("/").slice(0, -1).join("/"));
                 Logger.i("BatteryThreshold", `Found batteries: ${root.batteries}`);
             }
         }
