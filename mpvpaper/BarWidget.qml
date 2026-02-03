@@ -2,10 +2,11 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.Commons
+import qs.Modules.Bar.Extras
 import qs.Services.UI
 import qs.Widgets
 
-NIconButton {
+Item {
     id: root
 
     property var pluginApi: null
@@ -23,15 +24,8 @@ NIconButton {
         pluginApi.pluginSettings.isMuted ||
         false
 
-    icon: "wallpaper-selector"
-
-    onClicked: {
-        pluginApi?.openPanel(root.screen, root);
-    }
-
-    onRightClicked: {
-        PanelService.showContextMenu(contextMenu, root, screen);
-    }
+    implicitWidth: pill.width
+    implicitHeight: pill.height
 
     NPopupContextMenu {
         id: contextMenu
@@ -94,6 +88,23 @@ NIconButton {
                 default:
                     Logger.e("mpvpaper", "Error, action not found:", action);
             }
+        }
+    }
+
+    BarPill {
+        id: pill
+
+        screen: root.screen
+        tooltipText: "Open mpvpaper manager"
+
+        icon: "wallpaper-selector"
+
+        onClicked: {
+            pluginApi?.openPanel(root.screen, root);
+        }
+
+        onRightClicked: {
+            PanelService.showContextMenu(contextMenu, root, screen);
         }
     }
 }
