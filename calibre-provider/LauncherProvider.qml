@@ -13,8 +13,9 @@ Item {
     property string name: "Calibre"
     property var launcher: null
     property bool handleSearch: false
-    property string supportedLayouts: "list"
-    property bool supportsAutoPaste: true
+    property string supportedLayouts: "both"
+    property bool supportsAutoPaste: false
+    property int preferredGridColumns: 3
 
     // Constants
     property int maxResults: 50
