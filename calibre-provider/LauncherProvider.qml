@@ -102,8 +102,8 @@ Item {
                         description: extension + " • " + entry.authors,
                         cover: entry.cover,
                         file,
-                        authorSearch: entry.authors.toLowerCase().replace(punct, ""),
-                        titleSearch: entry.title.toLowerCase().replace(punct, ""),
+                        authorSearch: FuzzySort.prepare(entry.authors),
+                        titleSearch: FuzzySort.prepare(entry.title)
                     });
                 }
             });
@@ -142,34 +142,25 @@ Item {
         }
 
         var query = searchText.slice(4).trim().toLowerCase();
-        var results = [];
-
-        if (query === "") {
-        } else {
-            // Search mode
-            for (var i = 0; i < database.length && results.length < maxResults; i++) {
-
-                const entry = database[i];
-
-                if (entry.authorSearch.includes(query) || entry.titleSearch.includes(query)) {
-                    results.push(formatEntry(query, entry));
-                }
-            }
-        }
+        var results = FuzzySort.go(query, database, {
+            limit: maxResults,
+            keys: ["titleSearch", "authorSearch"]
+        }).map(r => formatEntry(r.obj));
 
         return results;
     }
 
-    function formatEntry(query, entry) {
+    function formatEntry(entry) {
+        const hasCover = !!entry.cover;
         return {
           // Display
           "name": entry.title,           // Main text
-          "description": entry.description,   // Secondary text (optional)
+          "description": entry.description || "",   // Secondary text (optional)
 
           // Icon options (choose one)
-          "icon": entry.cover,                   // Icon name
-          "isTablerIcon": false,             // Use Tabler icon set
-          "isImage": true,                 // Is this an image?
+          "icon": entry.cover || "book",                   // Icon name
+          "isTablerIcon": !hasCover,             // Use Tabler icon set
+          "isImage": hasCover,                 // Is this an image?
           "hideIcon": false,                // Hide the icon entirely
 
           // Layout
@@ -191,8 +182,7 @@ Item {
     }
 
     function activateEntry(entry) {
-        Logger.d("CalibreProvider", "Opening file:", entry.file );
+        Logger.i("CalibreProvider", "Opening file:", entry.file );
         Quickshell.execDetached(["xdg-open", entry.file]);
-
     }
 }
