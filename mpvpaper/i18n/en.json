@@ -70,6 +70,12 @@
       "high_quality": "High Quality",
       "low_latency": "Low Latency"
     },
+    "fill_mode": {
+      "label": "Fill mode",
+      "description": "The fill mode that mpvpaper uses.",
+      "fit": "Fit",
+      "crop": "Crop"
+    },
     "automation": {
       "label": "Automation",
       "description": "Schedule automatic wallpaper change."

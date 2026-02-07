@@ -20,6 +20,7 @@ Item {
     required property bool isMuted
     required property string mpvSocket
     required property string profile
+    required property string fillMode
     required property real volume
 
     required property Thumbnails thumbnails
@@ -35,7 +36,7 @@ Item {
         // Save the old wallpapers of the user.
         innerService.saveOldWallpapers();
 
-        mpvProc.command = ["sh", "-c", `mpvpaper -o "input-ipc-server=${root.mpvSocket} profile='${profile}' ${hardwareAcceleration ? "hwdec=auto" : ""} loop ${isMuted ? "no-audio" : ""}" ALL ${root.currentWallpaper}` ]
+        mpvProc.command = ["sh", "-c", `mpvpaper -o "input-ipc-server='${root.mpvSocket}' profile='${profile}' panscan=${fillMode === "fit" ? 0 : 1} ${hardwareAcceleration ? "hwdec=auto" : ""} loop ${isMuted ? "no-audio" : ""}" ALL "${root.currentWallpaper}"` ]
         mpvProc.running = true;
 
         pluginApi.pluginSettings.isPlaying = true;
@@ -148,6 +149,15 @@ Item {
         if (!root.active || !mpvProc.running) return;
 
         sendCommandToMPV(`set profile ${profile}`)
+    }
+
+    onFillModeChanged:{
+        Logger.d("mpvpaper", "Changing current fill mode");
+
+        if (!root.active || !mpvProc.running) return;
+        
+        const panscan = fillMode === "fit" ? 0 : 1
+        sendCommandToMPV(`no-osd set panscan ${panscan}`)
     }
 
     onVolumeChanged: {

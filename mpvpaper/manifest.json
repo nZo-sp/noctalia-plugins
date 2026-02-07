@@ -21,7 +21,8 @@
     "defaultSettings": {
       "mpvSocket": "/tmp/mpv-socket",
       "wallpapersFolder": "~/Pictures/Wallpapers",
-      "profile": "default"
+      "profile": "default",
+      "fillMode": "fit"
     }
   }
 }

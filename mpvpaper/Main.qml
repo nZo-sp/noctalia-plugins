@@ -58,6 +58,12 @@ Item {
         pluginApi.manifest.metadata.defaultSettings.profile ||
         "default"
 
+    readonly property string fillMode:
+        pluginApi.pluginSettings.fillMode ||
+        pluginApi.manifest.metadata.defaultSettings.fillMode ||
+        "fit"
+    
+
     readonly property bool thumbCacheReady:
         pluginApi.pluginSettings.thumbCacheReady ||
         false
@@ -148,6 +154,7 @@ Item {
         isPlaying: root.isPlaying
         mpvSocket: root.mpvSocket
         profile: root.profile
+        fillMode: root.fillMode
         volume: root.volume
 
         thumbnails: thumbnails
