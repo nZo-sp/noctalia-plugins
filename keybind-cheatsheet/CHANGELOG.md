@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1.2] - 2026-02-08
+
+### 🌐 Translations
+
+- Added german translations for the `error` keys
+
 ## [3.1.1] - 2026-02-03
 
 ### 🚀 Smart Caching
