@@ -1,0 +1,20 @@
+{
+  "id": "battery-actions",
+  "name": "Battery Actions",
+  "version": "1.0.0",
+  "minNoctaliaVersion": "4.4.0",
+  "author": "itscrystalline",
+  "license": "MIT",
+  "repository": "https://github.com/itscrystalline/noctalia-plugins",
+  "description": "A plugin that allows you to run custom actions when battery state changes.",
+  "entryPoints": {
+    "main": "Main.qml",
+    "settings": "Settings.qml"
+  },
+  "dependencies": {
+    "plugins": []
+  },
+  "metadata": {
+    "defaultSettings": {}
+  }
+}
