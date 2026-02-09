@@ -88,7 +88,7 @@
     {
       "id": "clipper",
       "name": "Clipper",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "official": false,
       "author": "blackbartblues",
       "description": "Advanced clipboard manager with history, search, keyboard navigation, ToDo integration, pinned items, notecards/sticky notes, and selection-to-notecard feature. Fully translated with comprehensive i18n support.",
@@ -103,7 +103,7 @@
         "Notes",
         "i18n"
       ],
-      "lastUpdated": "2026-02-05T13:48:25+01:00"
+      "lastUpdated": "2026-02-08T21:20:48+01:00"
     },
     {
       "id": "currency-exchange",
@@ -234,14 +234,14 @@
     {
       "id": "keybind-cheatsheet",
       "name": "Keybind Cheatsheet",
-      "version": "3.1.2",
+      "version": "3.2.2",
       "official": false,
       "author": "blacku",
       "description": "Universal keyboard shortcuts keymap that automatically detects and displays keybindings for Hyprland or Niri compositors.",
       "minNoctaliaVersion": "3.6.0",
       "license": "MIT",
       "tags": [],
-      "lastUpdated": "2026-02-08T17:56:04+01:00"
+      "lastUpdated": "2026-02-08T21:44:29+01:00"
     },
     {
       "id": "mangowc-layout-switcher",
@@ -280,7 +280,7 @@
     {
       "id": "mpris-lyric",
       "name": "MPRIS Lyric",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "official": false,
       "author": "DBeidachazi",
       "description": "Display synchronized lyrics from MPRIS-compatible music players (e.g., go-musicfox) in the bar.",
@@ -292,7 +292,7 @@
         "Music",
         "Lyrics"
       ],
-      "lastUpdated": "2026-01-26T23:59:29-05:00"
+      "lastUpdated": "2026-02-08T20:55:52+01:00"
     },
     {
       "id": "mpvpaper",
