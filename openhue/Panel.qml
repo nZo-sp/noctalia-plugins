@@ -101,7 +101,6 @@ Item {
         Layout.fillWidth: true
         Layout.preferredWidth: 0
         text: "Rooms"
-        enabled: false // TODO: Re-enable once implemented
         tabIndex: 1
         checked: tabs.currentIndex === tabIndex
       }
@@ -174,6 +173,74 @@ Item {
                   checked: lightBox.isOn
                   onToggled: {
                     root.pluginApi.mainInstance.setLightOnState(lightBox.id, !lightBox.isOn)
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Rooms
+      NScrollView {
+        horizontalPolicy: ScrollBar.AlwaysOff
+        verticalPolicy: ScrollBar.AsNeeded
+        clip: true
+        contentWidth: availableWidth
+
+        ColumnLayout {
+          spacing: Style.marginM
+          width: parent.width
+
+          Repeater {
+            model: pluginApi.mainInstance.rooms
+
+            NBox {
+              id: roomBox
+              Layout.fillWidth: true
+              Layout.preferredHeight: roomCol.implicitHeight + (Style.marginM * 2)
+
+              required property var modelData
+              readonly property string id: modelData.id || "0"
+              readonly property string name: modelData.name || "Unknown room"
+              readonly property real brightness: modelData.brightness || 0.0
+              readonly property bool isOn: modelData.on || false
+
+              RowLayout {
+                anchors.fill: parent
+                anchors.margins: Style.marginL
+                spacing: Style.marginM
+
+                ColumnLayout {
+                  id: roomCol
+                  Layout.fillWidth: true
+                  spacing: Style.marginXS
+
+                  NLabel {
+                    label: roomBox.name
+                    labelColor: Color.mPrimary
+                    Layout.fillWidth: true
+                  }
+
+                  NValueSlider {
+                    Layout.fillWidth: true
+                    from: 1
+                    to: 100
+                    value: roomBox.brightness
+                    stepSize: 1
+                    heightRatio: 0.5
+                    text: Math.round(value) + "%"
+                    enabled: true
+                    onMoved: value => {
+                      root.pluginApi.mainInstance.setRoomBrightness(roomBox.id, value)
+                    }
+                  }
+                }
+
+                NToggle {
+                  checked: roomBox.isOn
+                  onToggled: {
+                    root.pluginApi.mainInstance.setRoomOnState(roomBox.id, !roomBox.isOn)
                   }
                 }
               }

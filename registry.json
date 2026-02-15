@@ -430,7 +430,7 @@
     {
       "id": "privacy-indicator",
       "name": "Privacy Indicator",
-      "version": "1.1.0",
+      "version": "1.2.3",
       "official": true,
       "author": "Noctalia Team",
       "description": "A privacy indicator widget that shows when microphone, camera or screen sharing is active.",
@@ -442,7 +442,7 @@
         "Privacy",
         "Indicator"
       ],
-      "lastUpdated": "2026-02-06T14:19:11-05:00"
+      "lastUpdated": "2026-02-14T19:08:47+01:00"
     },
     {
       "id": "rss-feed",
@@ -522,7 +522,7 @@
     {
       "id": "tailscale",
       "name": "Tailscale",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "official": false,
       "author": "nineluj",
       "description": "Show Tailscale status in the menu bar.",
@@ -534,7 +534,7 @@
         "Network",
         "Panel"
       ],
-      "lastUpdated": "2026-01-26T23:59:29-05:00"
+      "lastUpdated": "2026-02-14T20:25:29+01:00"
     },
     {
       "id": "timer",
