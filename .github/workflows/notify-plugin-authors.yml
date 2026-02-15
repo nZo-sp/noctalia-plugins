@@ -26,6 +26,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           REPO: ${{ github.repository }}
         run: |
           # Get the list of changed files in this PR
@@ -75,8 +76,12 @@ jobs:
             author=$(echo "$response" | jq -r '.author.login // empty')
             
             if [[ -n "$author" ]]; then
-              echo "Found author for $plugin: @$author"
-              authors["$author"]=1
+              if [[ "$author" == "$PR_AUTHOR" ]]; then
+                echo "Skipping notification for @$author (PR author)"
+              else
+                echo "Found author for $plugin: @$author"
+                authors["$author"]=1
+              fi
             fi
           done
           
