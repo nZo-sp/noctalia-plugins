@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2026-02-15
+
+### Fixed
+- Fixed Settings.qml component errors (replaced NTextField with NTextInput)
+- Replicated original NewsSettings pattern from noctalia-shell for better compatibility
+- Fixed NComboBox usage with proper currentKey and onSelected handlers
+- Removed unnecessary imports and simplified structure
+- Fixed syntax error in Settings.qml
+
 ## [1.0.0] - 2026-02-15
 
 ### Added

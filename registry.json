@@ -332,7 +332,7 @@
     {
       "id": "news",
       "name": "News Bar",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "Noctalia",
       "description": "Display scrolling news headlines from various sources using NewsAPI.org",
@@ -344,7 +344,7 @@
         "News",
         "Network"
       ],
-      "lastUpdated": "2026-02-15T15:50:00Z"
+      "lastUpdated": "2026-02-15T16:07:00Z"
     },
     {
       "id": "niri-overview-launcher",
