@@ -45,6 +45,7 @@ Item {
           RowLayout {
             Text {
               text: "📰"
+              font.family: "Noto Color Emoji, sans-serif"
               font.pointSize: Style.fontSizeXXL
               color: Color.mPrimary
             }
