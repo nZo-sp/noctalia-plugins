@@ -70,7 +70,7 @@ Item {
 
         if (root.enabled && root.currentWallpaper != "") {
             root.saveOldWallpapers();
-        } else if (!root.enabled) {
+        } else {
             root.applyOldWallpapers();
         }
     }
@@ -80,7 +80,7 @@ Item {
 
         if (root.enabled && root.currentWallpaper != "") {
             root.saveOldWallpapers();
-        } else if (!root.enabled) {
+        } else {
             root.applyOldWallpapers();
         }
     }
