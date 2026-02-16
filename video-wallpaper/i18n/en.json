@@ -39,6 +39,9 @@
       }
     }
   },
+  "main": {
+    "no_backend_found": "{backend} wasn't found!"
+  },
   "panel": {
     "title": "Video wallpaper manager",
     "tool_row": {

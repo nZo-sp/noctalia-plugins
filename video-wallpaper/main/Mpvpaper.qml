@@ -36,6 +36,10 @@ Item {
     // Constants
     readonly property string mpvSocketScreen: `${mpvSocket}-${screenName}`
 
+    // Local properties
+    property bool mpvpaperExists: false
+    property bool isActivating: false
+
 
     /***************************
     * FUNCTIONS
@@ -63,6 +67,14 @@ Item {
     }
 
     function activateMpvpaper() {
+        // Just call this again if we are still checking
+        if (mpvCheck.running) {
+            Qt.callLater(activateMpvpaper);
+            return;
+        }
+
+        if (!mpvpaperExists) return;
+
         Logger.d("video-wallpaper", "Activating mpvpaper...");
 
         mpvProc.command = buildMpvCommand();
@@ -223,6 +235,20 @@ Item {
     /***************************
     * COMPONENTS
     ***************************/
+    Process {
+        id: mpvCheck
+        running: true
+        command: ["sh", "-c", "mpvpaper --help"]
+
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode === 0) {
+                root.mpvpaperExists = true;
+            } else {
+                ToastService.showError(root.pluginApi?.tr("main.no_backend_found", {"backend": "Mpvpaper"}) || "Mpvpaper wasn't found!");
+            }
+        }
+    }
+
     Process {
         id: mpvProc
     }
