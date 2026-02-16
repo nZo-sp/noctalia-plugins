@@ -12,6 +12,8 @@ Item {
     property string widgetId: ""
     property string section: ""
 
+    property var service: pluginApi?.mainInstance?.service
+
     readonly property real contentWidth: contentIcon.implicitWidth + Style.marginM * 2
     readonly property real contentHeight: Style.capsuleHeight
 
@@ -66,7 +68,7 @@ Item {
             if (pluginApi) {
                 if (button.button === Qt.LeftButton) {
                     pluginApi.openPanel(root.screen);
-                } else if (button.button === Qt.RightButton) {
+                } else if (button.button === Qt.RightButton && root.service.isAvailable) {
                     PanelService.showContextMenu(contextMenu, root, screen);
                 }
             }

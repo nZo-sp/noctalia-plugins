@@ -42,14 +42,14 @@ Item {
     }
 
     function setThreshold(value) {
-        const v = Math.round(value)
-        Logger.i("BatteryThreshold", "Restored charge threshold to " + v + "%")
+        const v = Math.round(value);
+        Logger.i("BatteryThreshold", "Restored charge threshold to " + v + "%");
 
-        thresholdWriter.pendingThreshold = v
-        thresholdWriter.command = ["sh", "-c", `echo ${v} > ${thresholdFile}`]
-        thresholdWriter.running = true
+        thresholdWriter.pendingThreshold = v;
+        thresholdWriter.command = ["sh", "-c", `echo ${v} > ${thresholdFile}`];
+        thresholdWriter.running = true;
     }
-    
+
     function getBatteries() {
         Logger.i("BatteryThreshold", "Obtaining available batteries...");
         batteryList.running = true;
@@ -70,7 +70,7 @@ Item {
         running: false
 
         onExited: function (exitCode) {
-            if (exitCode === 0) {
+            if (exitCode === 0 && root.batteries.length != 0) {
                 root.isAvailable = true;
                 thresholdFileView.path = root.thresholdFile;
                 writeAccessChecker.running = true;
@@ -110,15 +110,15 @@ Item {
 
         running: false
 
-        onExited: function(exitCode) {
+        onExited: function (exitCode) {
             if (exitCode === 0) {
-                service.refresh()
+                service.refresh();
                 if (pluginApi && pluginApi.pluginSettings.chargeThreshold != pendingThreshold) {
-                    pluginApi.pluginSettings.chargeThreshold = pendingThreshold
-                    pluginApi.saveSettings()
+                    pluginApi.pluginSettings.chargeThreshold = pendingThreshold;
+                    pluginApi.saveSettings();
                 }
             } else {
-                Logger.w("BatteryThreshold", "Failed to write threshold, exitCode=" + exitCode)
+                Logger.w("BatteryThreshold", "Failed to write threshold, exitCode=" + exitCode);
             }
         }
     }
