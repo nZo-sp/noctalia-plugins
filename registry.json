@@ -231,6 +231,23 @@
       "lastUpdated": "2026-01-29T22:32:10+01:00"
     },
     {
+      "id": "ideapad-battery-health",
+      "name": "Ideapad Battery Health",
+      "version": "1.0.0",
+      "official": false,
+      "author": "Christophe Branchereau",
+      "description": "Set the battery charging mode for ideapad laptop batteries, to extend battery lifespan",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel",
+        "System"
+      ],
+      "lastUpdated": "2026-02-17T15:50:12+01:00"
+    },
+    {
       "id": "kagi-quick-search",
       "name": "Kagi Quick Search",
       "version": "1.0.1",
@@ -265,7 +282,7 @@
     {
       "id": "kde-connect",
       "name": "KDE Connect",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "WerWolv",
       "description": "A Plugin integrating your mobile devices into a panel using KDEConnect",
@@ -278,7 +295,7 @@
         "Utility",
         "System"
       ],
-      "lastUpdated": "2026-02-16T22:10:20-05:00"
+      "lastUpdated": "2026-02-17T19:46:31+01:00"
     },
     {
       "id": "keybind-cheatsheet",
