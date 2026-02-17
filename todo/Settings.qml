@@ -332,6 +332,16 @@ ColumnLayout {
     }
   }
 
+  function isPageNameUnique(name, excludeIndex) {
+    var pages = pluginApi?.pluginSettings?.pages || [];
+    var lowerName = name.toLowerCase().trim();
+    for (var i = 0; i < pages.length; i++) {
+      if (i !== excludeIndex && pages[i].name.toLowerCase().trim() === lowerName) {
+      return false;
+      }
+    }
+    return true;
+  }
 
   function addPage() {
     var name = newPageInput.text.trim();
