@@ -253,11 +253,11 @@ Item {
             RowLayout {
 
               Item {
-                width: 7
+                width: 7 * Style.uiScaleRatio
               }
 
               Rectangle {
-                width: 100
+                width: 100 * Style.uiScaleRatio
                 color: "transparent"
                 Layout.fillHeight: true
                 Layout.leftMargin: Style.marginL
@@ -283,16 +283,16 @@ Item {
                     icon: deviceData.getBatteryIcon(KDEConnect.mainDevice.battery, KDEConnect.mainDevice.charging)
                     pointSize: Style.fontSizeXXXL
                     applyUiScale: true
-                    color: KDEConnect.mainDevice.charging ? Color.mPrimary : Color.mOnSurface
+                    color: Color.mOnSurface
                   }
 
                   ColumnLayout {
-                    spacing: 2
+                    spacing: 2 * Style.uiScaleRatio
 
                     NText {
                       text: pluginApi?.tr("panel.card.battery")
                       pointSize: Style.fontSizeS
-                      color: Color.mOnSurfaceVariant
+                      color: Color.mOnSurface
                     }
 
                     NText {
@@ -316,16 +316,16 @@ Item {
                   }
 
                   ColumnLayout {
-                    spacing: 2
+                    spacing: 2 * Style.uiScaleRatio
 
                     NText {
                       text: pluginApi?.tr("panel.card.network")
                       pointSize: Style.fontSizeS
-                      color: Color.mOnSurfaceVariant
+                      color: Color.mOnSurface
                     }
 
                     NText {
-                      text: KDEConnect.mainDevice.cellularNetworkType
+                      text: KDEConnect.mainDevice.cellularNetworkType || pluginApi?.tr("panel.signal.unknown")
                       pointSize: Style.fontSizeL
                       font.weight: Style.fontWeightMedium
                       color: Color.mOnSurface
@@ -345,12 +345,12 @@ Item {
                   }
 
                   ColumnLayout {
-                    spacing: 2
+                    spacing: 2 * Style.uiScaleRatio
 
                     NText {
                       text: pluginApi?.tr("panel.card.signal-strength")
                       pointSize: Style.fontSizeS
-                      color: Color.mOnSurfaceVariant
+                      color: Color.mOnSurface
                     }
 
                     NText {
@@ -367,21 +367,19 @@ Item {
                   spacing: Style.marginM
 
                   NIcon {
-                    icon: "message"
-                    pointSize: Style.fontSizeXXL
+                    icon: "notification"
+                    pointSize: Style.fontSizeXXXL
                     applyUiScale: true
-                    color: Color.mPrimary
+                    color: Color.mOnSurface
                   }
 
-                  Item {}
-
                   ColumnLayout {
-                    spacing: 2
+                    spacing: 2 * Style.uiScaleRatio
 
                     NText {
                       text: pluginApi?.tr("panel.card.notifications")
                       pointSize: Style.fontSizeS
-                      color: Color.mOnSurfaceVariant
+                      color: Color.mOnSurface
                     }
 
                     NText {
@@ -501,7 +499,7 @@ Item {
 
             NIcon {
               icon: "device-mobile-off"
-              pointSize: 48
+              pointSize: 48 * Style.uiScaleRatio
               color: Color.mOnSurfaceVariant
               Layout.alignment: Qt.AlignHCenter
             }
@@ -546,7 +544,7 @@ Item {
 
             NIcon {
               icon: "device-mobile-off"
-              pointSize: 48
+              pointSize: 48 * Style.uiScaleRatio
               color: Color.mOnSurfaceVariant
               Layout.alignment: Qt.AlignHCenter
             }
@@ -603,7 +601,7 @@ Item {
 
             NIcon {
               icon: "exclamation-circle"
-              pointSize: 48
+              pointSize: 48 * Style.uiScaleRatio
               color: Color.mOnSurfaceVariant
               Layout.alignment: Qt.AlignHCenter
             }
