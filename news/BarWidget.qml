@@ -86,6 +86,9 @@ Item {
     function onNewsDataChanged() {
       updateAllNewsText();
     }
+    function onRefreshRequested() {
+      fetchNews();
+    }
   }
 
   // Fetch news when API key becomes available
@@ -290,27 +293,6 @@ Item {
               to: 0
               duration: 500
             }
-          }
-        }
-      }
-
-      // Refresh button
-      Text {
-        text: "🔄"
-        font.family: "Noto Color Emoji, sans-serif"
-        font.pointSize: root.barFontSize * 0.9
-        color: refreshMouseArea.containsMouse ? Color.mPrimary : (mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface)
-        Layout.alignment: Qt.AlignVCenter
-        z: 10  // Ensure button is above main mouseArea
-
-        MouseArea {
-          id: refreshMouseArea
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
-          onClicked: {
-            mouse.accepted = true
-            fetchNews()
           }
         }
       }

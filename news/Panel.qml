@@ -57,6 +57,17 @@ Item {
             }
 
             NIconButton {
+              icon: "refresh"
+              tooltipText: "Refresh news"
+              baseSize: Style.baseWidgetSize * 0.8
+              onClicked: {
+                if (main) {
+                  main.requestRefresh();
+                }
+              }
+            }
+
+            NIconButton {
               icon: "x"
               tooltipText: "Close"
               baseSize: Style.baseWidgetSize * 0.8

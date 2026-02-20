@@ -37,7 +37,7 @@ Get your free API key from [NewsAPI.org](https://newsapi.org/register). The free
 - The widget displays scrolling news headlines with smooth animation
 - **Left-click** the widget to open the news panel with full headlines
 - **Right-click** the widget to open settings
-- Click the refresh icon (🔄) to manually fetch new headlines
+- Click the refresh button in the panel header to manually fetch new headlines
 - In vertical bars, shows the number of available headlines
 
 ## Limitations

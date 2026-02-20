@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.8] - 2026-02-20
+
+### Changed
+- Moved refresh button from bar widget to panel header for better UX
+- Added refresh signal in Main singleton for communication between components
+- Refresh button now appears next to close button in panel
+
+### Removed
+- Removed non-functional refresh button from bar widget
+
+## [1.1.7] - 2026-02-20
+
+### Fixed
+- Updated README usage instructions to reflect correct click behavior
+- Updated CHANGELOG with missing version entries
+
 ## [1.1.6] - 2026-02-20
 
 ### Fixed

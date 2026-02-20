@@ -10,4 +10,11 @@ Singleton {
   property var newsData: []
   property string errorMessage: ""
   property bool isLoading: false
+  
+  // Trigger to notify BarWidget to refresh
+  signal refreshRequested()
+  
+  function requestRefresh() {
+    refreshRequested();
+  }
 }
