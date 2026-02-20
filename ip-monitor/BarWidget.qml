@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
 import qs.Commons
 import qs.Modules.Bar.Extras
 import qs.Modules.Panels.Settings
@@ -13,6 +12,7 @@ Item {
   id: root
 
   property var pluginApi: null
+  property var ipMonitorService: pluginApi?.mainInstance?.ipMonitorService || null
 
   property ShellScreen screen
   property string widgetId: ""
@@ -25,13 +25,10 @@ Item {
   readonly property string successIconKey: cfg.successIcon ?? defaults.successIcon ?? "network"
   readonly property string errorIconKey: cfg.errorIcon ?? defaults.errorIcon ?? "alert-circle"
   readonly property string loadingIconKey: cfg.loadingIcon ?? defaults.loadingIcon ?? "loader"
-  readonly property int refreshInterval: cfg.refreshInterval ?? defaults.refreshInterval ?? 300
-
-  // IP state - managed directly in widget like CustomButton
-  property string currentIp: "n/a"
-  property var ipData: null
-  property string fetchState: "idle" // idle, loading, success, error
-  property int lastFetchTime: 0
+  // Read IP state from service (service is the source of truth)
+  readonly property string currentIp: ipMonitorService?.currentIp ?? "n/a"
+  readonly property var ipData: ipMonitorService?.ipData ?? null
+  readonly property string fetchState: ipMonitorService?.fetchState ?? "idle"
 
   readonly property string displayIp: currentIp
   readonly property bool isHot: fetchState === "success"
@@ -53,92 +50,16 @@ Item {
   implicitWidth: pill.width
   implicitHeight: pill.height
 
+  onIpMonitorServiceChanged: {
+    Logger.d("IpMonitor", "BarWidget ipMonitorService changed:", ipMonitorService !== null);
+  }
+  
+  onCurrentIpChanged: {
+    Logger.d("IpMonitor", "BarWidget currentIp changed to:", currentIp);
+  }
+  
   Component.onCompleted: {
-    Logger.d("IpMonitor", "BarWidget loaded, fetching IP...");
-    Qt.callLater(() => fetchIp());
-  }
-
-  // Watch for IPC refresh trigger from singleton service
-  Connections {
-    target: Local.IpMonitorService
-    
-    function onRefreshTriggerChanged() {
-      Logger.d("IpMonitor", "BarWidget received refresh trigger from IPC, value:", Local.IpMonitorService.refreshTrigger);
-      fetchIp();
-    }
-  }
-
-  // curl process for fetching IP info (like CustomButton's textProc)
-  Process {
-    id: ipFetchProcess
-    running: false
-    command: ["curl", "-s", "-m", "10", "https://ipinfo.io"]
-    stdout: StdioCollector {
-      id: stdoutCollector
-    }
-    stderr: StdioCollector {
-      id: stderrCollector
-    }
-
-    onStarted: {
-      fetchState = "loading";
-      // Update service cache with loading state
-      Local.IpMonitorService.updateCache(ipData, "loading", lastFetchTime);
-      Logger.d("IpMonitor", "BarWidget fetching IP info...");
-    }
-
-    onExited: function(exitCode, exitStatus) {
-      var output = stdoutCollector.text;
-      Logger.d("IpMonitor", "BarWidget process exited:", exitCode, "length:", output.length);
-
-      if (exitCode === 0 && output.length > 0) {
-        try {
-          var data = JSON.parse(output);
-          if (data.ip) {
-            ipData = data;
-            currentIp = data.ip;
-            fetchState = "success";
-            lastFetchTime = Date.now();
-            // Update service cache
-            Local.IpMonitorService.updateCache(data, "success", lastFetchTime);
-            Logger.d("IpMonitor", "BarWidget IP fetched and cached:", currentIp);
-          } else {
-            throw new Error("No IP field in response");
-          }
-        } catch (e) {
-          Logger.e("IpMonitor", "BarWidget parse error:", e.message);
-          currentIp = "n/a";
-          ipData = null;
-          fetchState = "error";
-          // Update service cache with error state
-          Local.IpMonitorService.updateCache(null, "error", Date.now());
-        }
-      } else {
-        Logger.e("IpMonitor", "BarWidget curl failed:", exitCode);
-        currentIp = "n/a";
-        ipData = null;
-        fetchState = "error";
-        // Update service cache with error state
-        Local.IpMonitorService.updateCache(null, "error", Date.now());
-      }
-    }
-  }
-
-  // Auto-refresh timer
-  Timer {
-    id: autoRefreshTimer
-    interval: refreshInterval * 1000
-    running: interval > 0
-    repeat: true
-    onTriggered: fetchIp()
-  }
-
-  function fetchIp() {
-    if (!ipFetchProcess.running) {
-      ipFetchProcess.running = true;
-    } else {
-      Logger.d("IpMonitor", "BarWidget fetch already in progress");
-    }
+    Logger.d("IpMonitor", "BarWidget completed refresh");
   }
 
   BarPill {
@@ -154,8 +75,8 @@ Item {
 
     tooltipText: {
       var lines = [];
-      lines.push("Left click: Refresh IP and open panel");
-      lines.push("Right click: Settings");
+      lines.push("Left click: Open panel");
+      lines.push("Right click: Menu");
       if (root.fetchState === "success" && root.ipData) {
         var data = root.ipData;
         lines.push("");
@@ -170,7 +91,7 @@ Item {
     }
 
     onClicked: {
-      // Open panel (it will use cached data)
+      // Open panel (displays cached IP data)
       if (pluginApi) {
         pluginApi.openPanel(root.screen, root);
       }
@@ -214,7 +135,7 @@ Item {
           ToastService.showNotice("No IP to copy");
         }
       } else if (action === "refresh") {
-        fetchIp();
+        ipMonitorService.fetchIp();
       } else if (action === "settings") {
         BarService.openPluginSettings(root.screen, pluginApi.manifest);
       }

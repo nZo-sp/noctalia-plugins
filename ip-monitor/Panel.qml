@@ -12,6 +12,7 @@ Item {
 
   // Plugin API (injected by PluginPanelSlot)
   property var pluginApi: null
+  property var ipMonitorService: pluginApi?.mainInstance?.ipMonitorService || null
 
   // SmartPanel
   readonly property var geometryPlaceholder: panelContainer
@@ -21,22 +22,22 @@ Item {
 
   readonly property bool allowAttach: true
 
-  // IP data state - read from service cache
-  readonly property var ipData: Local.IpMonitorService.cachedIpData
-  readonly property string fetchState: Local.IpMonitorService.cachedFetchState
+  // IP data state - read from service
+  readonly property var ipData: ipMonitorService?.ipData ?? null
+  readonly property string fetchState: ipMonitorService?.fetchState ?? "idle"
 
   anchors.fill: parent
 
   Component.onCompleted: {
     if (pluginApi) {
-      Logger.i("IpMonitor", "Panel initialized with cached data");
+      Logger.i("IpMonitor", "Panel initialized with service data");
     }
   }
 
-  // Trigger refresh in BarWidget via service
+  // Trigger refresh via service
   function refreshIp() {
-    Logger.i("IpMonitor", "Panel triggering refresh via service");
-    Local.IpMonitorService.triggerRefresh();
+    Logger.d("IpMonitor", "Panel triggering service refresh");
+    if (ipMonitorService) ipMonitorService.fetchIp();
   }
 
   Rectangle {
