@@ -15,11 +15,6 @@ Item {
   readonly property bool allowAttach: true
   anchors.fill: parent
 
-  // Properties from bar widget
-  property var newsData: []
-  property string errorMessage: ""
-  property bool isLoading: false
-
   Rectangle {
     id: panelContainer
     anchors.fill: parent
@@ -76,7 +71,7 @@ Item {
 
         // Error message
         Rectangle {
-          visible: errorMessage.length > 0
+          visible: Main.errorMessage.length > 0
           Layout.fillWidth: true
           Layout.preferredHeight: errorRow.implicitHeight + (Style.marginXL)
           color: Qt.alpha(Color.mError, 0.1)
@@ -97,7 +92,7 @@ Item {
             }
 
             NText {
-              text: errorMessage
+              text: Main.errorMessage
               color: Color.mError
               pointSize: Style.fontSizeS
               wrapMode: Text.Wrap
@@ -123,7 +118,7 @@ Item {
 
             // Loading state
             NBox {
-              visible: isLoading
+              visible: Main.isLoading
               Layout.fillWidth: true
               Layout.preferredHeight: loadingColumn.implicitHeight + Style.marginXL
 
@@ -159,7 +154,7 @@ Item {
 
             // Empty state
             NBox {
-              visible: !isLoading && newsData.length === 0 && errorMessage.length === 0
+              visible: !Main.isLoading && Main.newsData.length === 0 && Main.errorMessage.length === 0
               Layout.fillWidth: true
               Layout.preferredHeight: emptyColumn.implicitHeight + Style.marginXL
 
@@ -195,12 +190,12 @@ Item {
 
             // News list
             ColumnLayout {
-              visible: !isLoading && newsData.length > 0
+              visible: !Main.isLoading && Main.newsData.length > 0
               width: parent.width
               spacing: Style.marginS
 
               NText {
-                text: "Headlines (" + newsData.length + ")"
+                text: "Headlines (" + Main.newsData.length + ")"
                 pointSize: Style.fontSizeS
                 color: Color.mSecondary
                 font.weight: Style.fontWeightBold
@@ -208,7 +203,7 @@ Item {
               }
 
               Repeater {
-                model: root.newsData
+                model: Main.newsData
 
                 NBox {
                   id: newsItem

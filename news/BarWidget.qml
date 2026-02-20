@@ -38,11 +38,8 @@ Item {
   readonly property int rollingSpeed: cfg.rollingSpeed || defaults.rollingSpeed || 50
   readonly property int widgetWidth: cfg.widgetWidth || defaults.widgetWidth || 300
 
-  // News data
-  property var newsData: []
+  // News data (stored in Main singleton for sharing with Panel)
   property string allNewsText: ""
-  property bool isLoading: false
-  property string errorMessage: ""
 
   // API configuration
   readonly property string baseUrl: "https://newsapi.org/v2"
@@ -78,28 +75,15 @@ Item {
       console.log("[News Plugin] PluginApi loaded, API key:", apiKey ? "configured" : "not configured");
       Qt.callLater(fetchNews);
     }
-    // Sync data to panel when pluginApi is available
-    if (pluginApi && pluginApi.panelInstance) {
-      syncToPanel();
-    }
   }
 
-  // Sync data to panel
-  function syncToPanel() {
-    if (pluginApi && pluginApi.panelInstance) {
-      pluginApi.panelInstance.newsData = root.newsData;
-      pluginApi.panelInstance.errorMessage = root.errorMessage;
-      pluginApi.panelInstance.isLoading = root.isLoading;
+  // Update combined news text when Main.newsData changes
+  Connections {
+    target: Main
+    function onNewsDataChanged() {
+      updateAllNewsText();
     }
   }
-
-  // Sync to panel when news data changes
-  onNewsDataChanged: {
-    updateAllNewsText();
-    syncToPanel();
-  }
-  onErrorMessageChanged: syncToPanel()
-  onIsLoadingChanged: syncToPanel()
 
   // Fetch news when API key becomes available
   onApiKeyChanged: {
@@ -111,15 +95,15 @@ Item {
 
   // Update combined news text
   function updateAllNewsText() {
-    if (newsData.length === 0) {
+    if (Main.newsData.length === 0) {
       allNewsText = ""
       return
     }
     
     var combined = ""
-    for (var i = 0; i < newsData.length; i++) {
+    for (var i = 0; i < Main.newsData.length; i++) {
       if (i > 0) combined += "  •  "
-      combined += "[" + (i + 1) + "] " + (newsData[i]?.title || "No headline")
+      combined += "[" + (i + 1) + "] " + (Main.newsData[i]?.title || "No headline")
     }
     allNewsText = combined
   }
@@ -127,12 +111,12 @@ Item {
 
   // Fetch news
   function fetchNews() {
-    isLoading = true
-    errorMessage = ""
+    Main.isLoading = true
+    Main.errorMessage = ""
 
     if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
-      errorMessage = "API key not configured"
-      isLoading = false
+      Main.errorMessage = "API key not configured"
+      Main.isLoading = false
       console.log("[News Plugin] Error: API key not configured")
       return
     }
@@ -153,34 +137,34 @@ Item {
             var response = JSON.parse(xhr.responseText)
             if (response.status === "ok" && response.articles) {
               console.log("[News Plugin] Success: Fetched", response.articles.length, "articles")
-              newsData = response.articles.slice(0, maxHeadlines)
-              isLoading = false
-              errorMessage = ""
+              Main.newsData = response.articles.slice(0, maxHeadlines)
+              Main.isLoading = false
+              Main.errorMessage = ""
             } else {
-              errorMessage = response.message || "API error"
-              isLoading = false
+              Main.errorMessage = response.message || "API error"
+              Main.isLoading = false
               console.log("[News Plugin] API Error:", response.message || "Unknown error")
             }
           } catch (e) {
-            errorMessage = "Failed to parse response"
-            isLoading = false
+            Main.errorMessage = "Failed to parse response"
+            Main.isLoading = false
             console.log("[News Plugin] Parse Error:", e.toString())
           }
         } else if (xhr.status === 401) {
-          errorMessage = "Invalid API key"
-          isLoading = false
+          Main.errorMessage = "Invalid API key"
+          Main.isLoading = false
           console.log("[News Plugin] Error: Invalid API key (401)")
         } else if (xhr.status === 429) {
-          errorMessage = "Rate limit exceeded"
-          isLoading = false
+          Main.errorMessage = "Rate limit exceeded"
+          Main.isLoading = false
           console.log("[News Plugin] Error: Rate limit exceeded (429)")
         } else if (xhr.status === 0) {
-          errorMessage = "Network error"
-          isLoading = false
+          Main.errorMessage = "Network error"
+          Main.isLoading = false
           console.log("[News Plugin] Error: Network error or CORS issue (0)")
         } else {
-          errorMessage = "HTTP error " + xhr.status
-          isLoading = false
+          Main.errorMessage = "HTTP error " + xhr.status
+          Main.isLoading = false
           console.log("[News Plugin] Error: HTTP", xhr.status)
         }
       }
@@ -225,9 +209,9 @@ Item {
         clip: true
 
         property string displayText: {
-          if (errorMessage !== "") return errorMessage
-          if (isLoading) return "Loading news..."
-          if (newsData.length === 0) return "No news available"
+          if (Main.errorMessage !== "") return Main.errorMessage
+          if (Main.isLoading) return "Loading news..."
+          if (Main.newsData.length === 0) return "No news available"
           return allNewsText
         }
 
@@ -236,7 +220,7 @@ Item {
           y: (parent.height - height) / 2
           text: parent.displayText
           color: {
-            if (errorMessage !== "") return Color.mError
+            if (Main.errorMessage !== "") return Color.mError
             return mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
           }
           pointSize: root.barFontSize
@@ -246,7 +230,7 @@ Item {
           
           SequentialAnimation {
             id: textAnimation
-            running: newsText.contentWidth > newsText.parent.width && !isLoading && errorMessage === ""
+            running: newsText.contentWidth > newsText.parent.width && !Main.isLoading && Main.errorMessage === ""
             loops: Animation.Infinite
             
             PauseAnimation { duration: 2000 }
@@ -305,7 +289,7 @@ Item {
       }
 
       NText {
-        text: newsData.length > 0 ? newsData.length.toString() : "?"
+        text: Main.newsData.length > 0 ? Main.newsData.length.toString() : "?"
         color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
         pointSize: root.barFontSize * 0.65
         applyUiScale: false
@@ -324,10 +308,9 @@ Item {
 
     onClicked: (mouse) => {
       if (mouse.button === Qt.LeftButton) {
-        // Open panel and sync data after a short delay
+        // Open panel
         if (pluginApi) {
           pluginApi.openPanel(root.screen, root);
-          Qt.callLater(syncToPanel);
         }
       } else if (mouse.button === Qt.RightButton) {
         // Open settings on right click
@@ -338,8 +321,8 @@ Item {
     }
 
     onEntered: {
-      var tooltip = newsData.length > 0 
-        ? newsData.length + " headlines\nLeft-click to view • Right-click for settings"
+      var tooltip = Main.newsData.length > 0 
+        ? Main.newsData.length + " headlines\nLeft-click to view • Right-click for settings"
         : "Left-click to view • Right-click for settings";
       TooltipService.show(root, tooltip, BarService.getTooltipDirection());
     }
