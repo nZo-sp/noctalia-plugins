@@ -15,6 +15,7 @@ ColumnLayout {
   // Local state
   property string apiKeyValue: cfg.apiKey ?? defaults.apiKey ?? "YOUR_API_KEY_HERE"
   property string countryValue: cfg.country ?? defaults.country ?? "us"
+  property string languageValue: cfg.language ?? defaults.language ?? "en"
   property string categoryValue: cfg.category ?? defaults.category ?? "general"
   property int refreshIntervalValue: cfg.refreshInterval ?? defaults.refreshInterval ?? 30
   property int maxHeadlinesValue: cfg.maxHeadlines ?? defaults.maxHeadlines ?? 10
@@ -26,6 +27,7 @@ ColumnLayout {
     
     pluginApi.pluginSettings.apiKey = apiKeyValue;
     pluginApi.pluginSettings.country = countryValue;
+    pluginApi.pluginSettings.language = languageValue;
     pluginApi.pluginSettings.category = categoryValue;
     pluginApi.pluginSettings.refreshInterval = refreshIntervalValue;
     pluginApi.pluginSettings.maxHeadlines = maxHeadlinesValue;
@@ -50,24 +52,57 @@ ColumnLayout {
   }
 
   NComboBox {
-    label: "Country"
-    description: "Select which country's news to display"
+    label: "Country/Region"
+    description: "Select region for news (automatically sets language)"
     minimumWidth: 200
     model: [
-      { "key": "us", "name": "United States" },
-      { "key": "gb", "name": "United Kingdom" },
-      { "key": "ca", "name": "Canada" },
-      { "key": "au", "name": "Australia" },
-      { "key": "de", "name": "Germany" },
-      { "key": "fr", "name": "France" },
-      { "key": "it", "name": "Italy" },
-      { "key": "jp", "name": "Japan" },
-      { "key": "kr", "name": "South Korea" },
-      { "key": "in", "name": "India" }
+      { "key": "us", "name": "United States (English)" },
+      { "key": "gb", "name": "United Kingdom (English)" },
+      { "key": "ca", "name": "Canada (English)" },
+      { "key": "au", "name": "Australia (English)" },
+      { "key": "de", "name": "Germany (German)" },
+      { "key": "fr", "name": "France (French)" },
+      { "key": "it", "name": "Italy (Italian)" },
+      { "key": "es", "name": "Spain (Spanish)" },
+      { "key": "mx", "name": "Mexico (Spanish)" },
+      { "key": "br", "name": "Brazil (Portuguese)" },
+      { "key": "jp", "name": "Japan (Japanese)" },
+      { "key": "kr", "name": "South Korea (Korean)" },
+      { "key": "nl", "name": "Netherlands (Dutch)" },
+      { "key": "se", "name": "Sweden (Swedish)" },
+      { "key": "no", "name": "Norway (Norwegian)" },
+      { "key": "in", "name": "India (English)" }
     ]
     currentKey: countryValue
     onSelected: key => {
       countryValue = key;
+      saveSettings();
+    }
+  }
+
+  NComboBox {
+    label: "Language Override"
+    description: "Manually override language (auto-detected from country by default)"
+    minimumWidth: 200
+    model: [
+      { "key": "en", "name": "English" },
+      { "key": "de", "name": "German" },
+      { "key": "fr", "name": "French" },
+      { "key": "it", "name": "Italian" },
+      { "key": "es", "name": "Spanish" },
+      { "key": "pt", "name": "Portuguese" },
+      { "key": "nl", "name": "Dutch" },
+      { "key": "no", "name": "Norwegian" },
+      { "key": "sv", "name": "Swedish" },
+      { "key": "ja", "name": "Japanese" },
+      { "key": "ko", "name": "Korean" },
+      { "key": "ar", "name": "Arabic" },
+      { "key": "ru", "name": "Russian" },
+      { "key": "zh", "name": "Chinese" }
+    ]
+    currentKey: languageValue
+    onSelected: key => {
+      languageValue = key;
       saveSettings();
     }
   }

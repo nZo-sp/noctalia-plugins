@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-02-20
+
+### Changed
+- **BREAKING**: Switched from `/top-headlines` to `/everything` endpoint for better international support
+- Country selection now uses language-based filtering (works with free tier)
+- Added 16 country/region options with automatic language detection
+- Added manual language override setting (14 languages)
+- Expanded country list: added Spain, Mexico, Brazil, Netherlands, Sweden, Norway
+- Improved category filtering using keyword-based search
+
+### Added
+- Language parameter support for better international news
+- Country-to-language mapping for automatic language detection
+- Search query optimization based on selected category
+
+### Fixed
+- International news now works properly on free tier (was limited to US only)
+- Better news relevance for non-US countries
+
+## [1.1.9] - 2026-02-20
+
+### Fixed
+- Fixed Component.onCompleted syntax error (missing colon)
+
 ## [1.1.8] - 2026-02-20
 
 ### Changed

@@ -32,6 +32,7 @@ Item {
   // Get settings from configuration
   readonly property string apiKey: cfg.apiKey || defaults.apiKey || "YOUR_API_KEY_HERE"
   readonly property string country: cfg.country || defaults.country || "us"
+  readonly property string language: cfg.language || defaults.language || "en"
   readonly property string category: cfg.category || defaults.category || "general"
   readonly property int refreshInterval: cfg.refreshInterval || defaults.refreshInterval || 30
   readonly property int maxHeadlines: cfg.maxHeadlines || defaults.maxHeadlines || 10
@@ -46,6 +47,14 @@ Item {
 
   // API configuration
   readonly property string baseUrl: "https://newsapi.org/v2"
+  
+  // Country to language mapping for better international support
+  readonly property var countryLanguageMap: ({
+    "us": "en", "gb": "en", "ca": "en", "au": "en",
+    "de": "de", "fr": "fr", "it": "it", "es": "es",
+    "jp": "ja", "kr": "ko", "in": "en", "br": "pt",
+    "nl": "nl", "se": "sv", "no": "no", "mx": "es"
+  })
 
   readonly property real visualContentWidth: {
     if (isVertical) return root.capsuleHeight;
@@ -130,11 +139,22 @@ Item {
     }
 
     var xhr = new XMLHttpRequest()
-    var url = baseUrl + "/top-headlines?country=" + country + 
-              "&category=" + category + 
+    
+    // Determine language from country
+    var lang = countryLanguageMap[country] || language || "en"
+    
+    // Build category-specific search query for better results
+    var searchQuery = category !== "general" ? category : "news OR headlines"
+    
+    // Use /everything endpoint with language filter for better international support
+    // This works better with free tier than country-specific top-headlines
+    var url = baseUrl + "/everything?q=" + encodeURIComponent(searchQuery) + 
+              "&language=" + lang + 
+              "&sortBy=publishedAt" +
+              "&pageSize=" + maxHeadlines +
               "&apiKey=" + apiKey
 
-    console.log("[News Plugin] Fetching headlines - Category:", category)
+    console.log("[News Plugin] Fetching headlines - Language:", lang, "Category:", category)
 
     xhr.onreadystatechange = function() {
       if (xhr.readyState === XMLHttpRequest.DONE) {

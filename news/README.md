@@ -4,8 +4,9 @@ Display scrolling news headlines from various sources directly in your bar using
 
 ## Features
 
-- 📰 Real-time news headlines from 80,000+ sources worldwide
-- 🌍 Multiple country and category options
+- 📰 Real-time news from NewsAPI.org (150,000+ sources)
+- 🌍 International support with 14+ languages
+- 🗺️ 16 countries/regions supported
 - 🔄 Auto-refresh at customizable intervals
 - 📜 Smooth scrolling text animation
 - ⚙️ Highly configurable settings
@@ -16,7 +17,7 @@ Display scrolling news headlines from various sources directly in your bar using
 1. Clone or download this plugin to your Noctalia plugins directory
 2. Register for a free API key at [newsapi.org](https://newsapi.org/register)
 3. Add the plugin to your bar configuration
-4. Click the widget to open settings and enter your API key
+4. Click the widget and right-click to open settings and enter your API key
 
 ## Configuration
 
@@ -25,7 +26,8 @@ Get your free API key from [NewsAPI.org](https://newsapi.org/register). The free
 
 ### Settings
 
-- **Country**: Select which country's news to display (US, UK, Canada, etc.)
+- **Country/Region**: Select region for news (16 options with auto-language detection)
+- **Language Override**: Manually override language (14 languages available)
 - **Category**: Filter by category (General, Business, Technology, Sports, etc.)
 - **Refresh Interval**: How often to fetch new headlines (5-1440 minutes)
 - **Max Headlines**: Number of headlines to display (1-100)
@@ -43,7 +45,8 @@ Get your free API key from [NewsAPI.org](https://newsapi.org/register). The free
 ## Limitations
 
 - Free NewsAPI tier limited to 100 requests/day
-- News sources vary by country and category
+- Uses `/everything` endpoint with language filtering for better international support
+- News freshness depends on your refresh interval setting
 - Requires internet connection
 
 ## License

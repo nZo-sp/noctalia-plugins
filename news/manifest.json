@@ -1,7 +1,7 @@
 {
   "id": "news",
   "name": "News Bar",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "minNoctaliaVersion": "3.6.0",
   "author": "Noctalia",
   "license": "MIT",
@@ -20,6 +20,7 @@
     "defaultSettings": {
       "apiKey": "YOUR_API_KEY_HERE",
       "country": "us",
+      "language": "en",
       "category": "general",
       "refreshInterval": 30,
       "maxHeadlines": 10,
