@@ -574,10 +574,10 @@
     {
       "id": "screenshot",
       "name": "Screenshot",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "Cleboost",
-      "description": "Quick screenshot button in bar using hyprshot",
+      "description": "Quick screenshot button in bar for Hyprland, Sway, and Niri",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
       "minNoctaliaVersion": "3.6.0",
       "license": "MIT",
@@ -585,7 +585,7 @@
         "Bar",
         "Utility"
       ],
-      "lastUpdated": "2026-02-04T21:34:17+05:30"
+      "lastUpdated": "2026-02-19T17:33:45-05:00"
     },
     {
       "id": "simple-notes",
