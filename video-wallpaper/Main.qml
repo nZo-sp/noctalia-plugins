@@ -73,6 +73,7 @@ Item {
             readonly property string activeBackend:    root.pluginApi?.pluginSettings?.activeBackend || root.pluginApi?.manifest?.metadata?.defaultSettings?.activeBackend || ""
             readonly property string currentWallpaper: root.pluginApi?.pluginSettings?.[name]?.currentWallpaper || ""
 
+            property bool initialized: false
 
             /***************************
             * EVENTS
@@ -81,14 +82,33 @@ Item {
                 wallpaperLoaderTimer.restart();
             }
 
+            Component.onCompleted: {
+                if(!Settings.data.wallpaper.enabled) {
+                    initialized = true;
+                    wallpaperLoaderTimer.running = true
+                }
+            }
 
             /***************************
             * BACKEND COMPONENTS
             ***************************/
+            Loader {
+                active: !screenItem.initialized
+
+                Connections {
+                    target: WallpaperService
+
+                    function onWallpaperProcessingComplete() {
+                        screenItem.initialized = true;
+                        wallpaperLoaderTimer.running = true;
+                    }
+                }
+            }
+
             Timer {
                 id: wallpaperLoaderTimer
                 interval: 200
-                running: true
+                running: false
                 repeat: false
                 triggeredOnStart: false
 
