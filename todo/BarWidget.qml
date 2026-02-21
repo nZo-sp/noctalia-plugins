@@ -30,6 +30,13 @@ Item {
   readonly property int activeCount: todoCount - completedCount
   readonly property color contentColor: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
 
+  // Tooltip text for vertical mode
+  readonly property string tooltipText: {
+    var count = root.activeCount;
+    var key = count === 1 ? "bar_widget.todo_count_singular" : "bar_widget.todo_count_plural";
+    return pluginApi?.tr(key).replace("{count}", count);
+  }
+
   implicitWidth: contentWidth
   implicitHeight: contentHeight
 
@@ -111,6 +118,14 @@ Item {
           pluginApi.openPanel(root.screen);
         }
       }
+    }
+    onEntered: {
+      if (root.isVertical) {
+        TooltipService.show(root, tooltipText, BarService.getTooltipDirection(root.screen?.name));
+      }
+    }
+    onExited: {
+      TooltipService.hide();
     }
   }
 }
