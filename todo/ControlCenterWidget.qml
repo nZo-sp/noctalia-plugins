@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
-import qs.Widgets
 import qs.Services.UI
+import qs.Widgets
 
 NIconButtonHot {
   property ShellScreen screen
@@ -10,7 +10,8 @@ NIconButtonHot {
   icon: "clipboard-check"
 
   function getTooltipText() {
-    if (!pluginApi) return "Todo List";
+    if (!pluginApi)
+      return "Todo List";
     var todoCount = pluginApi.pluginSettings?.count || 0;
     var completedCount = pluginApi.pluginSettings?.completedCount || 0;
     var activeCount = todoCount - completedCount;

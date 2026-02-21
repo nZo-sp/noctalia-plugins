@@ -2,8 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.Commons
-import qs.Widgets
 import qs.Services.UI
+import qs.Widgets
 
 Item {
   id: root
@@ -104,7 +104,7 @@ Item {
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
 
-    onPressed: function(mouse) {
+    onPressed: function (mouse) {
       if (mouse.button === Qt.RightButton) {
         // Open settings on right click
         if (pluginApi && pluginApi.manifest) {
