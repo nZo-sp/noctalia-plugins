@@ -16,7 +16,7 @@ Item {
     property var mainInstance: pluginApi?.mainInstance
     property var activeProvider: mainInstance?.activeProvider
 
-    readonly property string screenName: screen?.name ?? "default"
+    readonly property string screenName: screen ? screen.name : ""
     readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
     readonly property bool isBarVertical: barPosition === "left" || barPosition === "right"
     readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)

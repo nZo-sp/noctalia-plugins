@@ -56,7 +56,7 @@ Item {
         onLoaded: root.parseHistory(text())
         onLoadFailed: error => {
             if (error === FileViewError.FileNotFound)
-                console.warn("[model-usage/codex] history.jsonl not found");
+                Logger.e("model-usage/codex", "history.jsonl not found");
         }
     }
 
@@ -68,7 +68,7 @@ Item {
         onLoaded: root.parseConfig(text())
         onLoadFailed: error => {
             if (error === FileViewError.FileNotFound)
-                console.warn("[model-usage/codex] config.toml not found");
+                Logger.e("model-usage/codex", "config.toml not found");
         }
     }
 
@@ -98,7 +98,7 @@ Item {
         onLoaded: root.parseSessionData(text())
         onLoadFailed: error => {
             if (error === FileViewError.FileNotFound) {
-                console.warn("[model-usage/codex] Session file not found:", root.latestSessionPath);
+                Logger.e("model-usage/codex", "Session file not found:", root.latestSessionPath);
                 root.loadPreviousSessionFile();
             }
         }
@@ -112,7 +112,7 @@ Item {
         onLoaded: root.parseAuth(text())
         onLoadFailed: error => {
             if (error === FileViewError.FileNotFound)
-                console.warn("[model-usage/codex] auth.json not found");
+                Logger.e("model-usage/codex", "auth.json not found");
         }
     }
 
@@ -156,7 +156,7 @@ Item {
             root.todaySessions = Object.keys(sessions).length;
             root.ready = true;
         } catch (e) {
-            console.warn("[model-usage/codex] Failed to parse history.jsonl:", e);
+            Logger.e("model-usage/codex", "Failed to parse history.jsonl:", e);
         }
     }
 
@@ -166,7 +166,7 @@ Item {
             if (match)
                 root.configModel = match[1];
         } catch (e) {
-            console.warn("[model-usage/codex] Failed to parse config.toml:", e);
+            Logger.e("model-usage/codex", "Failed to parse config.toml:", e);
         }
     }
 
@@ -176,7 +176,7 @@ Item {
             if (data.auth_mode)
                 root.tierLabel = data.auth_mode;
         } catch (e) {
-            console.warn("[model-usage/codex] Failed to parse auth.json:", e);
+            Logger.e("model-usage/codex", "Failed to parse auth.json:", e);
         }
     }
 
@@ -294,7 +294,7 @@ Item {
 
             root.sessionSearchInProgress = false;
         } catch (e) {
-            console.warn("[model-usage/codex] Failed to parse session data:", e);
+            Logger.e("model-usage/codex", "Failed to parse session data:", e);
             root.loadPreviousSessionFile();
         }
     }

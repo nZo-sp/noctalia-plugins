@@ -126,16 +126,16 @@ Item {
                 const msg = root.extractErrorMessage(xhr.responseText);
                 const msgLower = String(msg).toLowerCase();
                 if (msgLower.indexOf("invalid api key") !== -1) {
-                    console.warn("[model-usage/zen] API key rejected (status " + xhr.status + "): " + msg);
+                    Logger.e("model-usage/zen", "API key rejected (status " + xhr.status + "): " + msg);
                     root.authState = "invalid";
                 } else {
-                    console.warn("[model-usage/zen] API key probe unauthorized (status " + xhr.status + ")" + (msg ? ": " + msg : ""));
+                    Logger.e("model-usage/zen", "API key probe unauthorized (status " + xhr.status + ")" + (msg ? ": " + msg : ""));
                     root.authState = "unknown";
                 }
             } else if (xhr.status >= 200 && xhr.status < 500) {
                 root.authState = "valid";
             } else {
-                console.warn("[model-usage/zen] API key probe failed (status " + xhr.status + ")");
+                Logger.e("model-usage/zen", "API key probe failed (status " + xhr.status + ")");
                 root.authState = "unknown";
             }
 
@@ -163,7 +163,7 @@ Item {
                 root.modelsLoaded = false;
                 root.availableModels = 0;
                 root.defaultModel = "";
-                console.warn("[model-usage/zen] Models request failed (status " + xhr.status + ")");
+                Logger.e("model-usage/zen", "Models request failed (status " + xhr.status + ")");
                 root.updateState();
                 return;
             }
@@ -180,7 +180,7 @@ Item {
                 root.modelsLoaded = false;
                 root.availableModels = 0;
                 root.defaultModel = "";
-                console.warn("[model-usage/zen] Failed to parse models response:", e);
+                Logger.e("model-usage/zen", "Failed to parse models response:", e);
                 root.updateState();
             }
         };
