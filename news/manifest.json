@@ -3,11 +3,11 @@
   "name": "News Bar",
   "version": "1.2.1",
   "minNoctaliaVersion": "3.6.0",
-  "author": "Noctalia",
+  "author": "LazarH",
   "license": "MIT",
   "repository": "https://github.com/noctalia-dev/noctalia-plugins",
   "description": "Display scrolling news headlines from various sources using NewsAPI.org",
-  "tags": ["Bar", "Panel", "Network"],
+  "tags": ["Bar", "Panel", "Network", "Fun"],
   "entryPoints": {
     "main": "Main.qml",
     "barWidget": "BarWidget.qml",
