@@ -9,7 +9,7 @@ QtObject {
     property var pluginApi: null
 
     property var vpnList: []
-    property bool anyConnected: false
+    property real connectedCount: 0
 
     property var _pending: ({})
 
@@ -65,7 +65,7 @@ QtObject {
                 }
                 root._pending = newPending
                 root.vpnList = parsed
-                root.anyConnected = parsed.some(v => v.connected)
+                root.connectedCount = parsed.filter(v => v.connected).length
             }
             root._lines = []
         }

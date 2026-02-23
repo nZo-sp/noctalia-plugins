@@ -7,16 +7,25 @@
   "license": "MIT",
   "repository": "https://github.com/noctalia-dev/noctalia-plugins",
   "description": "Connect to VPN via NetworkManager",
-  "tags": ["Bar", "Panel", "Network"],
+  "tags": [
+    "Bar",
+    "Panel",
+    "Network"
+  ],
   "entryPoints": {
     "main": "Main.qml",
     "barWidget": "BarWidget.qml",
-    "panel": "Panel.qml"
+    "panel": "Panel.qml",
+    "settings": "Settings.qml"
   },
   "dependencies": {
     "plugins": []
   },
   "metadata": {
-    "defaultSettings": {}
+    "defaultSettings": {
+      "displayMode": "onhover",
+      "disconnectedColor": "none",
+      "connectedColor": "primary"
+    }
   }
 }
