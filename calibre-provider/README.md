@@ -18,8 +18,12 @@ Alternatively, you can trigger the provider by IPC with the command `qs -c nocta
 ### Launcher
 If you don't have `xdg-open` installed, or prefer to use a different file opener, you can configure this using the Launcher setting.
 
-### Force Grid mode
+### Force grid view
 Enable this to force the launcher into grid view when searching Calibre. This gives the cover images more space, but shows less metadata. If this option is disabled, your configured launcher view will be used.
+
+### Recently opened count
+Maximum number of recently opened books to remember. Default is 36, which enough to completely fill the launcher in compact grid view.
+Note that recently opened books are saved in the plugin settings by the internal Calibre book id. If you sync your Noctalia settings across multiple devices, and each device has a different Calibre library, you may get unexpected books showing up in your recently opened list.
 
 ## Requirements
 

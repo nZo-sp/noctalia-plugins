@@ -9,7 +9,7 @@ import sys, os, sqlite3, json
 
 query: str = """
 select
-    B.title, A.authors, B.path, D.format, D.name as "filename", B.has_cover
+    B.id, B.title, A.authors, B.path, D.format, D.name as "filename", B.has_cover
 from books B
 join data D on D.book=B.id
 left join (
@@ -51,11 +51,12 @@ class Context():
 
     def row_factory(self, cur: sqlite3.Cursor, row: Tuple) -> Dict:
         return {
-            'title': row[0],
-            'authors': fix_authors(row[1]),
-            'file': os.path.join(self.library_path, row[2], row[4] + '.' + row[3].lower()),
-            'format': row[3],
-            'cover': os.path.join(self.library_path, row[2], 'cover.jpg') if row[5] == 1 else None,
+            'id': row[0],
+            'title': row[1],
+            'authors': fix_authors(row[2]),
+            'file': os.path.join(self.library_path, row[3], row[5] + '.' + row[4].lower()),
+            'format': row[4],
+            'cover': os.path.join(self.library_path, row[3], 'cover.jpg') if row[6] == 1 else None,
         }
 
 def fix_authors(piped: str) -> str:

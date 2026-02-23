@@ -7,6 +7,10 @@
         "forcegrid": {
             "label": "Force grid view",
             "description": "Always use grid view to display results. If disabled, use current launcher configuration"
+        },
+        "recentlyOpened": {
+            "label": "Recently opened count",
+            "description": "How many recently opened entries to remember"
         }
     }
 }
