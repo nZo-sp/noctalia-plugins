@@ -9,6 +9,13 @@
     "connectionError": "Failed to connect {name}",
     "disconnectionError": "Failed to disconnect {name}"
   },
+  "settings": {
+    "pluginSettings": "Plugin settings",
+    "connectedColor": "Connected color",
+    "connectedColorDescription": "Chose the color to use for icon and text when connected",
+    "disconnectedColor": "Disconnected color",
+    "disconnectedColorDescription": "Chose the color to use for icon and text when disconnected"
+  },
   "common": {
     "vpn": "VPN",
     "refresh": "Refresh",
