@@ -111,14 +111,11 @@
       "minNoctaliaVersion": "4.1.2",
       "license": "MIT",
       "tags": [
-        "Clipboard",
         "Utility",
         "Bar",
-        "Panel",
-        "Notes",
-        "i18n"
+        "Panel"
       ],
-      "lastUpdated": "2026-02-08T21:20:48+01:00"
+      "lastUpdated": "2026-02-23T20:48:07-05:00"
     },
     {
       "id": "color-scheme-creator",
@@ -132,9 +129,9 @@
       "license": "MIT",
       "tags": [
         "Theming",
-        "Colors"
+        "Utility"
       ],
-      "lastUpdated": "2026-02-23T20:40:15-05:00"
+      "lastUpdated": "2026-02-23T20:48:07-05:00"
     },
     {
       "id": "currency-exchange",
@@ -386,10 +383,9 @@
       "license": "MIT",
       "tags": [
         "Bar",
-        "Music",
-        "Lyrics"
+        "Music"
       ],
-      "lastUpdated": "2026-02-08T20:55:52+01:00"
+      "lastUpdated": "2026-02-23T20:48:07-05:00"
     },
     {
       "id": "mpvpaper",
@@ -506,10 +502,9 @@
       "tags": [
         "Bar",
         "Panel",
-        "System",
-        "Gaming"
+        "System"
       ],
-      "lastUpdated": "2026-01-25T13:35:08-05:00"
+      "lastUpdated": "2026-02-23T20:48:07-05:00"
     },
     {
       "id": "notes-scratchpad",
