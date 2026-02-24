@@ -9,8 +9,7 @@
   "description": "Display synchronized lyrics from MPRIS-compatible music players (e.g., go-musicfox) in the bar.",
   "tags": [
     "Bar",
-    "Music",
-    "Lyrics"
+    "Music"
   ],
   "entryPoints": {
     "main": "Main.qml",

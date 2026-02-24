@@ -7,7 +7,7 @@
 	"license": "MIT",
 	"repository": "https://github.com/noctalia-dev/noctalia-plugins",
 	"description": "GPU control with supergfxctl for noctalia.",
-	"tags": ["Bar", "Panel", "System", "Gaming"],
+	"tags": ["Bar", "Panel", "System"],
 	"entryPoints": {
 		"main": "src/Main.qml",
 		"barWidget": "src/Bar.qml",
