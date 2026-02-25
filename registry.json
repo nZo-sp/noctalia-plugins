@@ -372,6 +372,23 @@
       "lastUpdated": "2026-01-26T23:59:29-05:00"
     },
     {
+      "id": "model-usage-bar-widget",
+      "name": "Model Usage",
+      "version": "0.2.0",
+      "official": false,
+      "author": "cmptr",
+      "description": "Shows AI coding assistant usage stats in the bar with detail panel (Claude Code, Codex, OpenRouter, Zen)",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Productivity",
+        "AI"
+      ],
+      "lastUpdated": "2026-02-22T10:32:24-06:00"
+    },
+    {
       "id": "mpris-lyric",
       "name": "MPRIS Lyric",
       "version": "1.0.2",
