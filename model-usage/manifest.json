@@ -1,5 +1,5 @@
 {
-  "id": "model-usage-bar-widget",
+  "id": "model-usage",
   "name": "Model Usage",
   "version": "0.2.0",
   "minNoctaliaVersion": "3.6.0",
