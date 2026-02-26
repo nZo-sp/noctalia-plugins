@@ -9,6 +9,7 @@
   "description": "Manage Docker containers, images, volumes & networks",
   "tags": ["Bar", "Panel", "Development"],
   "entryPoints": {
+    "main": "Main.qml",
     "barWidget": "BarWidget.qml",
     "panel": "Panel.qml",
     "settings": "Settings.qml"
