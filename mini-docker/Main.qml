@@ -43,15 +43,12 @@ QtObject {
     }
 
     function refresh() {
-        Logger.i("MiniDocker", "Refreshing")
         if (!root.dockerAvailable) {
-            Logger.i("MiniDocker", "Checking proc")
             root._dockerCheckProc.running = true;
 
             return
         }
 
-        Logger.i("MiniDocker", "List proc")
         root._dockerListCountProc.running = true
     }
 
