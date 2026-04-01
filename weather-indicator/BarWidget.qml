@@ -17,17 +17,19 @@ Item {
   property ShellScreen screen
   property string widgetId: ""
   property string section: ""
+  property int sectionWidgetIndex: -1
+  property int sectionWidgetsCount: 0
 
   // Get Settings and defaultSettings
    property var cfg: pluginApi?.pluginSettings || ({})
    property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
   // Get settings or use false
-  readonly property string customColor: cfg.customColor ?? defaults.customColor
-  readonly property bool showTempValue: cfg.showTempValue ?? defaults.showTempValue
-  readonly property bool showConditionIcon: cfg.showConditionIcon ?? defaults.customColor
-  readonly property bool showTempUnit: cfg.showTempUnit ?? defaults.showTempUnit
-  readonly property string tooltipOption: cfg.tooltipOption || defaults.tooltipOption
+  readonly property string customColor: cfg.customColor ?? defaults.customColor ?? "none"
+  readonly property bool showTempValue: cfg.showTempValue ?? defaults.showTempValue ?? false
+  readonly property bool showConditionIcon: cfg.showConditionIcon ?? defaults.customColor ?? false
+  readonly property bool showTempUnit: cfg.showTempUnit ?? defaults.showTempUnit ?? false
+  readonly property string tooltipOption: cfg.tooltipOption ?? defaults.tooltipOption ?? "everything"
 
   // Bar positioning properties
   readonly property string screenName: screen ? screen.name : ""
@@ -73,8 +75,7 @@ Item {
 
         NIcon {
           visible: root.showConditionIcon
-          anchors.verticalCenter: parent.verticalTop
-
+          Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
           icon: weatherReady ? LocationService.weatherSymbolFromCode(LocationService.data.weather.current_weather.weathercode, LocationService.data.weather.current_weather.is_day) : "weather-cloud-off"
           applyUiScale: true
           color: contentColor
@@ -82,7 +83,6 @@ Item {
 
         NText {
           visible: root.showTempValue
-          anchors.verticalCenter: parent.verticalBottom
           text: {
             if (!weatherReady || !root.showTempValue) {
               return "";
@@ -102,6 +102,10 @@ Item {
           color: contentColor
           pointSize: root.barFontSize
           applyUiScale: false
+          Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+          features: ({
+              "tnum": 1
+          })
         }
       }
     }

@@ -3,6 +3,7 @@ import Quickshell
 import qs.Commons
 import qs.Modules.Bar.Extras
 import qs.Services.UI
+import qs.Services.Compositor
 import qs.Widgets
 
 Item {
@@ -15,6 +16,7 @@ Item {
   property string section: ""
   property int sectionWidgetIndex: -1
   property int sectionWidgetsCount: 0
+  visible: CompositorService.isMango
 
   // ===== DATA BINDING =====
   readonly property string layoutCode: (pluginApi?.mainInstance?.monitorLayouts ?? {})[screen?.name] || "?"
@@ -55,7 +57,11 @@ Item {
     tooltipText: "Layout: " + root.layoutName
 
     onClicked: {
-      if (pluginApi) pluginApi.openPanel(root.screen)
+      if (pluginApi) pluginApi.openPanel(root.screen, root)
+    }
+
+    onRightClicked: {
+      if (pluginApi) pluginApi.openPanel(root.screen, root)
     }
   }
 }

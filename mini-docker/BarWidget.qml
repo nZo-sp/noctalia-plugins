@@ -18,6 +18,8 @@ NIconButton {
     readonly property var main: pluginApi?.mainInstance
     readonly property var runningCount: main?.runningCount
     readonly property var dockerAvailable: main?.dockerAvailable
+    property int sectionWidgetIndex: -1
+    property int sectionWidgetsCount: 0
 
     icon: "brand-docker"
     baseSize: Style.getCapsuleHeightForScreen(screen?.name)

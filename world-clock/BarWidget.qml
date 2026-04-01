@@ -16,6 +16,8 @@ Item {
   property ShellScreen screen
   property string widgetId: ""
   property string section: ""
+  property int sectionWidgetIndex: -1
+  property int sectionWidgetsCount: 0
 
   // Bar positioning properties
   readonly property string screenName: screen ? screen.name : ""
@@ -157,8 +159,8 @@ Item {
   }
 
   readonly property string tooltipText: {
-    if (enabledTimezones.length === 0) return pluginApi?.tr("world-clock.configure") || "Configure timezones";
-    return `${currentCity}\n${currentTime}\n${pluginApi?.tr("world-clock.tooltip.click") || "Click to configure"}`;
+    if (enabledTimezones.length === 0) return pluginApi?.tr("world-clock.configure");
+    return `${currentCity}\n${currentTime}\n${pluginApi?.tr("world-clock.tooltip.click")}`;
   }
 
   Rectangle {

@@ -13,6 +13,8 @@ Item {
     property ShellScreen screen
     property string widgetId: ""
     property string section: ""
+    property int sectionWidgetIndex: -1
+    property int sectionWidgetsCount: 0
     readonly property var pluginSettings: {
         return pluginApi && pluginApi.pluginSettings ? pluginApi.pluginSettings : {
         };
@@ -48,7 +50,7 @@ Item {
         id: contextMenu
 
         model: [{
-            "label": root.tr("settings.pluginSettings") || "Plugin settings",
+            "label": root.tr("settings.pluginSettings"),
             "action": "plugin-settings",
             "icon": "settings"
         }]
@@ -67,7 +69,7 @@ Item {
         screen: root.screen
         oppositeDirection: BarService.getPillDirection(root)
         autoHide: false
-        text: root.connectedCount > 0 ? root.tr("common.connected") || 'Connected' : root.tr("common.disconnected") || 'Disconnected'
+        text: root.connectedCount > 0 ? root.tr("common.connected") : root.tr("common.disconnected")
         icon: root.isLoading ? "reload" : root.connectedCount > 0 ? "shield-lock" : "shield"
         onClicked: {
             if (pluginApi)
